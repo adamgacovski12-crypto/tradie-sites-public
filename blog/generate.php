@@ -121,7 +121,7 @@ function tradie_call_groq(array $payload, string $apiKey): array {
    CALL 1 — metadata (JSON mode, small, deterministic)
    ────────────────────────────────────────────────────────────── */
 $metaSystem = <<<PROMPT
-You generate blog post metadata for Tradie Sites Co., an Australian service that builds tradie websites in 24 hours for \$200 setup + \$80/month.
+You generate blog post metadata for Tradie Sites Co., an Australian service that builds 5-page tradie websites in 24 hours. Two plans: Self-host (\$200 one-off, we build + hand over the files) or Hosted (\$200 setup + \$80/month, we host + monitor + fix breakages). Content edits and new pages are quoted separately on both plans. Don't claim content edits are included in the \$80/month.
 
 Return a SINGLE JSON OBJECT with exactly these fields:
 - "meta_title": string, ≤ 60 characters, compelling, includes the topic's target keyword.
@@ -168,7 +168,7 @@ foreach (($meta['faqs'] ?? []) as $f) {
    CALL 2 — body markdown (plain text mode, focused prompt)
    ────────────────────────────────────────────────────────────── */
 $bodySystem = <<<PROMPT
-Write a blog post in markdown for Tradie Sites Co., an Australian tradie website builder (\$200 setup + \$80/month, 24-hour turnaround, no lock-in).
+Write a blog post in markdown for Tradie Sites Co., an Australian tradie website builder. Two plans: Self-host (\$200 one-off, files handed over, no ongoing fee) or Hosted (\$200 setup + \$80/month, fast Cloudflare hosting + monitoring + breakage fixes). 24-hour turnaround. No lock-in on the Hosted plan; cancel any time and the site goes offline. Content edits, new pages and new features are quoted separately on both plans — DO NOT claim edits are bundled into the monthly.
 
 LENGTH:
 - Hard target: 900–1,100 words.

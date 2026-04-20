@@ -1,5 +1,5 @@
 ---
-{"title":"How much should a tradie website cost?","meta_title":"How Much Should a Tradie Website Cost in Australia?","description":"Tradie websites in Australia range from $0 DIY to $10k agency builds. Here's the honest breakdown of what each tier actually delivers — and what's worth paying for.","date":"2026-04-20","slug":"how-much-should-a-tradie-website-cost","topic_tag":"pricing","faqs":[{"q":"What's the cheapest way to get a tradie website?","a":"A DIY Wix or Squarespace site with a free template runs $0-$30/month, but you'll spend 30+ hours of your own time building it, and it won't rank on Google without SEO work you probably can't do yourself."},{"q":"Are agency tradie websites worth $5,000-$10,000?","a":"Rarely. Most of the spend goes to discovery workshops, strategy documents and project managers. The actual five pages you need are the same for everyone — you're paying for the agency's overheads, not for better results."},{"q":"What's included in a $200 + $80/month tradie website?","a":"A custom 5-page site, professional copywriting, domain setup, photo gallery, Cloudflare hosting with SSL, 2 content edits per month, and email support. No lock-in. Live in 24 hours."}]}
+{"title":"How much should a tradie website cost?","meta_title":"How Much Should a Tradie Website Cost in Australia?","description":"Tradie websites in Australia range from $0 DIY to $10k agency builds. Here's the honest breakdown of what each tier actually delivers — and what's worth paying for.","date":"2026-04-20","slug":"how-much-should-a-tradie-website-cost","topic_tag":"pricing","faqs":[{"q":"What's the cheapest way to get a tradie website?","a":"A DIY Wix or Squarespace site with a free template runs $0-$30/month, but you'll spend 30+ hours of your own time building it, and it won't rank on Google without SEO work you probably can't do yourself."},{"q":"Are agency tradie websites worth $5,000-$10,000?","a":"Rarely. Most of the spend goes to discovery workshops, strategy documents and project managers. The actual five pages you need are the same for everyone — you're paying for the agency's overheads, not for better results."},{"q":"What's included in a $200 + $80/month tradie website?","a":"A custom 5-page site, professional copywriting, domain setup, photo gallery, Cloudflare hosting with SSL, uptime monitoring, breakage fixes, and email + phone support. Content edits and new pages are quoted separately. No lock-in. Live in 24 hours."}]}
 ---
 
 "How much should I spend on a website for my trade?" is the question every tradie asks before they stop procrastinating and actually get one. The answer is genuinely confusing because Australia has four completely different price tiers — and three of them are a waste of money.
@@ -57,19 +57,23 @@ A proper design agency. Glass office. "Discovery workshop". Brand strategy deck.
 
 The category Tradie Sites Co. is in. A handful of services are aimed specifically at the 30 common Australian trades and built around the fact that those trades all need the same structural website, tuned to their specific needs.
 
-**What you pay:** $200 one-time setup, $80/month ongoing. No lock-in, 30-day cancel.
+**What you pay:** two options — $200 one-off (Self-host: we build and hand over the files), or $200 setup + $80/month (Hosted: we keep it online). No lock-in, cancel the monthly any time.
 
-**What you get:**
+**What you get on both:**
 - A 5-page custom site, built in 24 hours.
 - Copy written specifically for your trade (we've already written the templates for [plumbers](/trades/plumber), [electricians](/trades/electrician), [builders](/trades/builder) and 27 others).
 - Domain setup, DNS, SSL.
-- Cloudflare hosting with 99.9% uptime.
 - Licence display, service area page, click-to-call button, quote form.
-- 2 content edits per month — photos, copy changes, new services.
-- Email and phone support.
-- A working Google Business Profile setup.
+- Full source files yours on both plans — your domain, your assets, your words.
 
-**What you don't get:** a 90-minute discovery workshop. A brand mood board. A 20-page strategy document. A dedicated account manager. Things that cost the agency tier customers $6,000+.
+**Extra on the Hosted plan ($80/month):**
+- Fast Cloudflare hosting with 99.9% uptime.
+- Uptime monitoring + breakage fixes (stuff that breaks on its own).
+- Email and phone support for anything that stops working.
+
+**What's NOT in the $80/month:** content edits, new pages or new features — those are quoted separately on both plans. If you stop paying the $80, the site goes offline (that's how hosting works, flagged upfront).
+
+**What you don't get, either way:** a 90-minute discovery workshop. A brand mood board. A 20-page strategy document. A dedicated account manager. Things that cost the agency tier customers $6,000+.
 
 ## What does the maths look like over 3 years?
 

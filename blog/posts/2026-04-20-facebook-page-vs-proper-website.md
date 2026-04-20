@@ -83,7 +83,7 @@ A modern tradie site is five pages, written for your trade, live in 24 hours. We
 - [Painters](/trades/painter) — before/after slider, colour consultations
 - …and 27 other trades, same template, tuned per trade.
 
-You update nothing yourself. We handle 2 content edits a month. You run jobs. Google does its thing.
+You update nothing yourself. On the Hosted plan ($80/month) we keep the site online, patch breakages and watch uptime — content changes and new pages are quoted separately when you need them. Pick Self-host ($200 one-off) and the files are all yours to host anywhere. Either way you run jobs; Google does its thing.
 
 ## The switch-over
 
