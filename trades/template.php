@@ -1,10 +1,4 @@
 <?php
-/**
- * Tradie Sites Co. — single trade page renderer.
- * Accepts slug via $_GET['slug'] (set by .htaccess rewrite) or the caller
- * setting $tradeSlug before including this file.
- */
-
 $trades = require __DIR__ . '/_trades.php';
 $slug = $_GET['slug'] ?? ($tradeSlug ?? '');
 $slug = preg_replace('/[^a-z0-9-]/', '', strtolower($slug));
@@ -34,10 +28,7 @@ foreach ($faqs as $f) {
     $faqsJson[] = [
         '@type' => 'Question',
         'name'  => $f['q'],
-        'acceptedAnswer' => [
-            '@type' => 'Answer',
-            'text'  => $f['a'],
-        ],
+        'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f['a']],
     ];
 }
 
@@ -50,23 +41,13 @@ $serviceJsonLd = [
     'description' => $meta,
     'serviceType' => "{$name} website design and development",
     'areaServed'  => ['@type' => 'Country', 'name' => 'Australia'],
-    'provider' => [
-        '@type' => 'Organization',
-        'name'  => 'Tradie Sites Co.',
-        'url'   => 'https://site.tradiebud.tech/',
-    ],
+    'provider' => ['@type' => 'Organization', 'name' => 'Tradie Sites Co.', 'url' => 'https://site.tradiebud.tech/'],
     'offers' => [
-        ['@type' => 'Offer', 'name' => 'Setup', 'price' => '200', 'priceCurrency' => 'AUD'],
-        ['@type' => 'Offer', 'name' => 'Monthly',  'price' => '80',  'priceCurrency' => 'AUD'],
+        ['@type' => 'Offer', 'name' => 'Setup',   'price' => '200', 'priceCurrency' => 'AUD'],
+        ['@type' => 'Offer', 'name' => 'Monthly', 'price' => '80',  'priceCurrency' => 'AUD'],
     ],
 ];
-
-$faqJsonLd = [
-    '@context'   => 'https://schema.org',
-    '@type'      => 'FAQPage',
-    'mainEntity' => $faqsJson,
-];
-
+$faqJsonLd = ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => $faqsJson];
 $breadcrumbJsonLd = [
     '@context' => 'https://schema.org',
     '@type'    => 'BreadcrumbList',
@@ -109,6 +90,7 @@ header('Content-Type: text/html; charset=UTF-8');
     <script type="application/ld+json"><?= jld($faqJsonLd) ?></script>
     <script type="application/ld+json"><?= jld($breadcrumbJsonLd) ?></script>
 
+    <link rel="preload" href="/assets/fonts/barlow-condensed-800.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/assets/fonts/fonts.css">
     <link rel="stylesheet" href="/assets/site.css">
 </head>
@@ -116,19 +98,20 @@ header('Content-Type: text/html; charset=UTF-8');
 
 <nav class="nav">
     <div class="container">
-        <a href="/" class="nav-logo">Tradie Sites Co.</a>
+        <a href="/" class="nav-logo" aria-label="Tradie Sites Co. home"><span class="mark">T</span> Tradie Sites Co.</a>
         <button class="hamburger" aria-label="Menu" id="hamburger"><span></span><span></span><span></span></button>
         <div class="nav-links" id="navLinks">
-            <a href="/#how-it-works">How It Works</a>
+            <a href="/#how-it-works">How</a>
             <a href="/#pricing">Pricing</a>
             <a href="/trades/">Trades</a>
-            <a href="/#contact">Contact</a>
-            <a href="/#contact" class="nav-cta">Get Started</a>
+            <a href="/blog/">Blog</a>
+            <a href="/#chat">Chat</a>
+            <a href="/#contact" class="nav-cta">Get Your Site</a>
         </div>
     </div>
 </nav>
 
-<section class="hero hero-trade">
+<section class="hero hero-trade stripe-corner">
     <div class="hero-content">
         <nav class="breadcrumbs" aria-label="Breadcrumb">
             <ol>
@@ -137,83 +120,89 @@ header('Content-Type: text/html; charset=UTF-8');
                 <li aria-current="page"><?= h($name) ?></li>
             </ol>
         </nav>
-        <p class="eyebrow"><?= h($name) ?> website builder</p>
+        <span class="eyebrow"><?= h($name) ?> website builder</span>
         <h1><?= h($h1) ?></h1>
         <p class="hero-sub">Custom <?= h(strtolower($name)) ?> websites, live in 24 hours. $200 setup + $80/month. No lock-in contracts.</p>
         <div class="hero-ctas">
-            <a href="/#contact" class="btn btn-orange">Get Your <?= h($name) ?> Website — $200</a>
-            <a href="/#chat" class="btn btn-outline">Chat With Us ↓</a>
+            <a href="/#contact" class="btn btn-orange">Get Your <?= h($name) ?> Website</a>
+            <a href="/#chat" class="btn btn-ghost">Ask Tradie-Bot</a>
         </div>
     </div>
 </section>
 
-<div class="trust-strip">
-    <div class="container">
-        30+ trades covered <span>|</span> 24-hour delivery <span>|</span> $80/month all-in <span>|</span> No lock-in contracts
-    </div>
-</div>
-
-<section class="section-pad">
+<section class="section-pad bg-cream">
     <div class="container narrow">
-        <h2>Why <?= h(strtolower($plural)) ?> need a proper website</h2>
-        <p class="lede"><?= h($intro) ?></p>
+        <div class="section-heading reveal">
+            <span class="section-kicker">Why It Matters</span>
+            <h2>Why <?= h(strtolower($plural)) ?> need a proper website</h2>
+        </div>
+        <p class="lede reveal"><?= h($intro) ?></p>
     </div>
 </section>
 
-<section class="section-pad alt">
+<section class="section-pad">
     <div class="container narrow">
-        <h2>What's included on your <?= h(strtolower($name)) ?> website</h2>
-        <ul class="checklist">
+        <div class="section-heading reveal">
+            <span class="section-kicker">What You Get</span>
+            <h2>What's included on your <?= h(strtolower($name)) ?> website</h2>
+        </div>
+        <ul class="checklist reveal">
 <?php foreach ($services as $s): ?>
             <li><?= h($s) ?></li>
 <?php endforeach; ?>
         </ul>
-        <p class="lede" style="margin-top:28px">Plus everything on the standard <a href="/">Tradie Sites Co.</a> build — mobile-responsive layout, contact form, photo gallery, Cloudflare hosting, SEO-ready meta tags and schema, and two content edits per month.</p>
+        <p class="lede reveal" style="margin-top: 36px; text-align: center;">Plus everything on the standard <a href="/" style="color: var(--orange); font-weight: 600;">Tradie Sites Co.</a> build — mobile-responsive layout, contact form, photo gallery, Cloudflare hosting, SEO-ready meta tags and schema, and two content edits per month.</p>
     </div>
 </section>
 
 <section class="section-pad pricing">
     <div class="container">
-        <div class="section-heading">
+        <div class="section-heading reveal">
+            <span class="section-kicker">No Hidden Fees</span>
             <h2>Pricing — same for every trade</h2>
-            <p>Simple, transparent pricing. No hidden fees.</p>
+            <p>Simple, transparent, no lock-in.</p>
         </div>
         <div class="pricing-cards">
-            <div class="pricing-card">
+            <div class="pricing-card reveal">
                 <h3>Setup</h3>
                 <div class="price">$200</div>
-                <div class="price-sub">One-time payment</div>
+                <div class="price-sub">one-time</div>
                 <ul>
                     <li>Custom 5-page <?= h(strtolower($name)) ?> website</li>
                     <li>Professional copywriting</li>
-                    <li>Domain setup &amp; configuration</li>
+                    <li>Domain setup &amp; DNS</li>
                     <li>Photo gallery setup</li>
                     <li>Live within 24 hours</li>
                 </ul>
+                <a href="/#contact" class="btn">Start Setup</a>
             </div>
-            <div class="pricing-card popular">
-                <div class="popular-badge">Most Popular</div>
+            <div class="pricing-card popular reveal">
+                <div class="popular-banner">Most Popular</div>
                 <h3>Monthly</h3>
                 <div class="price">$80</div>
-                <div class="price-sub">Per month, cancel anytime</div>
+                <div class="price-sub">per month — cancel anytime</div>
                 <ul>
-                    <li>Fast Cloudflare hosting</li>
+                    <li>Fast Cloudflare hosting + SSL</li>
                     <li>2 content edits per month</li>
                     <li>Gallery photo updates</li>
                     <li>Email &amp; phone support</li>
-                    <li>No lock-in — 30 day notice</li>
+                    <li>30-day cancel notice</li>
                 </ul>
+                <a href="/#contact" class="btn btn-orange">Get Started</a>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section-pad">
+<section class="section-pad bg-cream">
     <div class="container narrow">
-        <h2><?= h($name) ?> website FAQs</h2>
+        <div class="section-heading reveal">
+            <span class="section-kicker">FAQs</span>
+            <h2><?= h($name) ?> website FAQs</h2>
+        </div>
         <div class="faqs">
 <?php foreach ($faqs as $f): ?>
-            <details class="faq">
+            <details class="faq reveal">
                 <summary><?= h($f['q']) ?></summary>
                 <p><?= h($f['a']) ?></p>
             </details>
@@ -222,33 +211,58 @@ header('Content-Type: text/html; charset=UTF-8');
     </div>
 </section>
 
-<section class="section-pad contact-cta">
+<section class="contact-cta">
     <div class="container">
-        <div class="section-heading">
+        <div class="section-heading reveal">
+            <span class="section-kicker">Ready When You Are</span>
             <h2>Ready to get your <?= h(strtolower($name)) ?> website online?</h2>
             <p>Fill in the form on the homepage and we'll be in touch within 24 hours — or ask our assistant any question first.</p>
         </div>
         <div class="cta-row">
-            <a href="/#contact" class="btn btn-orange">Get Started — $200</a>
-            <a href="/#chat" class="btn btn-outline">Chat With Us</a>
-            <a href="/trades/" class="btn btn-link">See all 30 trades →</a>
+            <a href="/#contact" class="btn">Get Started — $200</a>
+            <a href="/#chat" class="btn btn-link">Ask Tradie-Bot →</a>
+            <a href="/trades/" class="btn btn-link">All 30 trades →</a>
         </div>
     </div>
 </section>
 
 <footer class="footer">
-    <p><a href="/">Tradie Sites Co.</a> | <a href="https://site.tradiebud.tech">site.tradiebud.tech</a> | <a href="/trades/">All Trades</a></p>
-    <p>&copy; <span id="footerYear">2026</span> Tradie Sites Co.</p>
+    <div class="container">
+        <div>
+            <h4>Tradie Sites Co.</h4>
+            <p style="color: rgba(255,255,255,.55); font-size: .9rem; max-width: 260px;">Done-for-you websites for Australian tradies. $200 setup + $80/month. Live in 24 hours.</p>
+        </div>
+        <div><h4>Links</h4><a href="/">Home</a><a href="/trades/">Trades</a><a href="/blog/">Blog</a><a href="/#pricing">Pricing</a><a href="/#chat">Chat</a></div>
+        <div><h4>Popular Trades</h4><a href="/trades/plumber">Plumbers</a><a href="/trades/electrician">Electricians</a><a href="/trades/builder">Builders</a><a href="/trades/painter">Painters</a><a href="/trades/roofer">Roofers</a></div>
+        <div><h4>Get In Touch</h4><a href="/#contact">Enquiry Form</a><a href="/#chat">Ask Tradie-Bot</a><a href="mailto:info@tradiebud.tech">info@tradiebud.tech</a></div>
+    </div>
+    <div class="legal">
+        <span class="aus-made">◆ Built in Australia</span>
+        &nbsp;&middot;&nbsp;
+        &copy; <span id="footerYear">2026</span> Tradie Sites Co.
+    </div>
 </footer>
 
 <script>
 document.getElementById('footerYear').textContent = new Date().getFullYear();
-const hamburger = document.getElementById('hamburger');
-const navLinks = document.getElementById('navLinks');
-if (hamburger && navLinks) {
-    hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
-    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
-}
+(() => {
+    const h = document.getElementById('hamburger'); const n = document.getElementById('navLinks');
+    if (!h || !n) return;
+    h.addEventListener('click', () => n.classList.toggle('open'));
+    n.querySelectorAll('a').forEach(a => a.addEventListener('click', () => n.classList.remove('open')));
+})();
+(() => {
+    document.documentElement.classList.add('reveal-ready');
+    const els = document.querySelectorAll('.reveal');
+    const forceShow = () => els.forEach(el => el.classList.add('is-visible'));
+    if (!('IntersectionObserver' in window)) { forceShow(); return; }
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -40px 0px', threshold: 0.01 });
+    els.forEach(el => io.observe(el));
+    /* safety net: if observer misses anything (fast scroll, prerender, Lighthouse), show everything after 1.2s */
+    setTimeout(forceShow, 1200);
+})();
 </script>
 
 </body>
