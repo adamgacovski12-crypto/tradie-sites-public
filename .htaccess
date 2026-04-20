@@ -44,6 +44,15 @@ SetEnv ADMIN_EMAIL info@tradiebud.tech
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^trades/([a-z][a-z0-9-]*)/?$ /trades/template.php?slug=$1 [L,QSA]
+
+    # Pretty URLs for blog posts: /blog/some-slug -> /blog/template.php?slug=some-slug
+    # /blog/ is handled by DirectoryIndex -> /blog/index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^blog/([a-z0-9][a-z0-9-]*)/?$ /blog/template.php?slug=$1 [L,QSA]
+
+    # Dynamic sitemap: /sitemap.xml -> /sitemap.php
+    RewriteRule ^sitemap\.xml$ /sitemap.php [L]
 </IfModule>
 
 # Block direct access to trade data + partial includes
