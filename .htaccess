@@ -4,20 +4,14 @@
 # Set Groq API key (replace with real key)
 # SetEnv GROQ_API_KEY your_key_here  (set on server, not in git)
 
-# ── Outbound email — SMTP-AUTH to Adam's cPanel mailbox (PRIMARY PATH) ──
-# Adam's cPanel on VentraIP already has info@tradiebud.tech as a real mailbox.
-# We SMTP-AUTH to Ventra's Exim submission port (usually 587 with STARTTLS, or 465
-# with implicit TLS). REQUIRED: enable cPanel → Email Deliverability → Repair SPF + DKIM
-# on tradiebud.tech first, otherwise Gmail will spam-folder everything.
+# ── Outbound email — SMTP-AUTH to the info@tradiebud.tech mailbox on VentraIP ──
+# REQUIRED first: enable cPanel → Email Deliverability → Repair SPF + DKIM on
+# tradiebud.tech. Without that, Gmail/Outlook will spam-folder everything.
+# Port 587 uses STARTTLS (most common); port 465 uses implicit TLS if Ventra prefers that.
 # SetEnv SMTP_HOST mail.tradiebud.tech
 # SetEnv SMTP_PORT 587
 # SetEnv SMTP_USER info@tradiebud.tech
 # SetEnv SMTP_PASS your_mailbox_password_here
-
-# ── Outbound email — ZeptoMail API (OPTIONAL FALLBACK) ──
-# Flip on only if cPanel SMTP deliverability becomes unreliable after launch.
-# Generate send-mail token at https://www.zoho.com/zeptomail/ (AU region).
-# SetEnv ZEPTO_TOKEN your_zeptomail_send_token_here
 
 # Set admin email
 SetEnv ADMIN_EMAIL info@tradiebud.tech

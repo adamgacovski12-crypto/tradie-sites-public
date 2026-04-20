@@ -202,13 +202,11 @@ function tsc_load_record(string $reference): ?array {
 
 /* ── Email helpers ──
  *
- * Sender precedence (first one configured wins; failures log + try next):
- *   1. SMTP-AUTH via Adam's cPanel mailbox on VentraIP.
- *      Env vars:  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
- *      Example:   mail.tradiebud.tech, 587, info@tradiebud.tech, <mailbox pass>
- *   2. ZeptoMail API (optional — flip on if SMTP deliverability tanks).
- *      Env var:   ZEPTO_TOKEN
- *   3. PHP mail() — last-resort fallback for local dev; don't rely on it in production.
+ * Primary sender: SMTP-AUTH to Adam's cPanel mailbox on VentraIP.
+ *   Env vars: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+ *   Example:  mail.tradiebud.tech, 587, info@tradiebud.tech, <mailbox pass>
+ *
+ * Fallback: PHP mail() — only works locally if a sendmail-compatible MTA is configured.
  *
  * Every failure is logged to signups/mail.log so you can see what tried and why.
  */
@@ -223,18 +221,10 @@ function tsc_mail(string $to, string $subject, string $body, ?string $replyTo = 
     if ($smtpHost !== '') {
         $ok = tsc_mail_via_smtp($to, $subject, $body, $from, $fromName, $reply);
         if ($ok) return true;
-        tsc_mail_log("SMTP failed for {$to} (subject: {$subject}) — trying next sender");
+        tsc_mail_log("SMTP failed for {$to} (subject: {$subject}) — falling back to PHP mail()");
     }
 
-    /* 2. ZeptoMail (optional) */
-    $token = (string)getenv('ZEPTO_TOKEN');
-    if ($token !== '') {
-        $ok = tsc_mail_via_zeptomail($to, $subject, $body, $from, $fromName, $reply, $token);
-        if ($ok) return true;
-        tsc_mail_log("ZeptoMail failed for {$to} (subject: {$subject}) — trying mail()");
-    }
-
-    /* 3. PHP mail() — last resort */
+    /* 2. PHP mail() — last resort */
     $headers  = "From: {$fromName} <{$from}>\r\n";
     $headers .= "Reply-To: {$reply}\r\n";
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
@@ -363,53 +353,6 @@ function tsc_mail_via_smtp(string $to, string $subject, string $body, string $fr
     return true;
 }
 
-function tsc_mail_via_zeptomail(string $to, string $subject, string $body, string $from, string $fromName, string $reply, string $token): bool {
-    $endpoint = 'https://api.zeptomail.com.au/v1.1/email';
-    $payload = [
-        'from'     => ['address' => $from, 'name' => $fromName],
-        'to'       => [['email_address' => ['address' => $to, 'name' => '']]],
-        'reply_to' => [['address' => $reply, 'name' => $fromName]],
-        'subject'  => $subject,
-        'textbody' => $body,
-    ];
-    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    $authHeader = 'Authorization: Zoho-enczapikey ' . $token;
-
-    /* curl first, stream fallback — same pattern as chat.php / generate.php */
-    if (function_exists('curl_init')) {
-        $ch = curl_init($endpoint);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $json,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json', $authHeader],
-            CURLOPT_TIMEOUT => 10,
-        ]);
-        $raw  = curl_exec($ch);
-        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-    } else {
-        $ctx = stream_context_create([
-            'http' => [
-                'method'  => 'POST',
-                'header'  => "Content-Type: application/json\r\nAccept: application/json\r\n{$authHeader}\r\n",
-                'content' => $json,
-                'timeout' => 10,
-                'ignore_errors' => true,
-            ],
-        ]);
-        $raw = @file_get_contents($endpoint, false, $ctx);
-        $code = 0;
-        if (isset($http_response_header[0]) && preg_match('#\s(\d{3})\s#', $http_response_header[0], $m)) {
-            $code = (int)$m[1];
-        }
-    }
-
-    if ($code >= 200 && $code < 300) return true;
-
-    tsc_mail_log("ZeptoMail HTTP {$code} for {$to} — body: " . substr((string)$raw, 0, 400));
-    return false;
-}
 
 function tsc_mail_log(string $line): void {
     $cfg = tsc_cfg();

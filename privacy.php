@@ -105,7 +105,6 @@ header('Content-Type: text/html; charset=UTF-8');
     <li><strong>VentraIP</strong> — hosts our own server infrastructure (in Australia) and relays our outbound transactional emails (receipts, invoices, go-live notifications) via Exim from the info@tradiebud.tech mailbox.</li>
     <li><strong>Groq Cloud</strong> — processes chatbot conversations (your messages are sent to Groq's LLM API to generate replies). Groq's servers are in the US; messages are processed transiently and not used to train models.</li>
     <li><strong>Formspree</strong> — processes contact form submissions on delivered client sites.</li>
-    <li><strong>ZeptoMail (Zoho)</strong> — optional fallback email provider, activated only if VentraIP email delivery becomes unreliable. Not in use by default.</li>
 </ul>
 <p>We don't share your data with anyone else unless:</p>
 <ul>
