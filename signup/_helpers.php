@@ -213,8 +213,9 @@ function tsc_mail(string $to, string $subject, string $body, ?string $replyTo = 
 
 function tsc_email_customer_receipt(array $rec): void {
     $cfg = tsc_cfg();
-    $plan = $cfg['plans'][$rec['plan']] ?? $cfg['plans']['monthly'];
+    $plan = $cfg['plans'][$rec['plan']] ?? $cfg['plans']['hosted'];
     $bank = $cfg['bank'];
+    $isHosted = !empty($plan['is_hosted']);
     $subject = 'Your Tradie Sites Co. signup — next step';
     $body  = "G'day {$rec['contact_name']},\n\n";
     $body .= "Thanks for signing up. Here's what you chose:\n\n";
@@ -226,6 +227,13 @@ function tsc_email_customer_receipt(array $rec): void {
     $body .= "Account number: {$bank['account_number']}\n";
     $body .= "Reference: {$rec['reference']}  <- include this in the transfer description\n\n";
     $body .= "Your site will be live within 24 hours of the payment landing.\n\n";
+    if ($isHosted) {
+        $body .= "Hosting ($80/month) kicks in a month from go-live. If hosting payments stop, the site comes offline — that's how hosting works, no surprises.\n\n";
+        $body .= "Changes, new pages or new features aren't part of the $80 — reply any time and we'll quote separately.\n\n";
+    } else {
+        $body .= "On self-host: once payment lands and we finish building, we'll email the full source files + DNS setup notes. From there the site's entirely yours to host wherever you like — no ongoing fee from us.\n\n";
+        $body .= "Need changes or a rebuild later? Reply any time and we'll quote separately.\n\n";
+    }
     $body .= "Any questions, reply to this email.\n\n";
     $body .= "Cheers,\nTradie Sites Co.\n";
     tsc_mail($rec['email'], $subject, $body);
@@ -233,7 +241,7 @@ function tsc_email_customer_receipt(array $rec): void {
 
 function tsc_email_admin_notification(array $rec): void {
     $cfg = tsc_cfg();
-    $plan = $cfg['plans'][$rec['plan']] ?? $cfg['plans']['monthly'];
+    $plan = $cfg['plans'][$rec['plan']] ?? $cfg['plans']['hosted'];
     $subject = "\xF0\x9F\x94\xA5 NEW SIGNUP: {$rec['business_name']} — {$plan['label']}";
     $body  = "NEW SIGNUP\n";
     $body .= "──────────────────\n";
@@ -260,35 +268,45 @@ function tsc_email_admin_notification(array $rec): void {
 
 function tsc_email_payment_confirmed(array $rec): void {
     $cfg = tsc_cfg();
-    $plan = $cfg['plans'][$rec['plan']] ?? $cfg['plans']['monthly'];
+    $plan = $cfg['plans'][$rec['plan']] ?? $cfg['plans']['hosted'];
+    $isHosted = !empty($plan['is_hosted']);
     $signupDate = $rec['date'] ?? date('Y-m-d H:i:s');
-    $nextDue = date('j F Y', strtotime($signupDate . ' ' . $plan['recurring_interval']));
     $subject = 'Payment received — your site is being built now';
     $body  = "G'day {$rec['contact_name']},\n\n";
     $body .= "Got your \$200. We're on it.\n\n";
-    $body .= "Your site will be live within 24 hours at a URL we'll email you once ready.\n\n";
-    $body .= "Your next payment is due {$nextDue}:\n";
-    $body .= "- {$plan['recurring_label']}\n\n";
-    $body .= "We'll send you an invoice + bank details closer to the date.\n\n";
+    if ($isHosted) {
+        $nextDue = date('j F Y', strtotime($signupDate . ' ' . $plan['recurring_interval']));
+        $body .= "Your site will be live within 24 hours at a URL we'll email you once ready.\n\n";
+        $body .= "First hosting invoice: {$plan['recurring_label']}, due {$nextDue}. We'll email bank details a week before.\n\n";
+        $body .= "Reminder: if hosting payments stop, the site goes offline. Disclosed at signup — just so we're on the same page.\n\n";
+        $body .= "Content edits, extra pages and new features are quoted separately — reply any time to request a quote.\n\n";
+    } else {
+        $body .= "Self-host build: your site will be built within 24 hours. When it's ready, we'll email the full source files + DNS setup notes. No ongoing fee from us.\n\n";
+        $body .= "Want changes or a rebuild later? Reply any time — we quote separately.\n\n";
+    }
     $body .= "Any questions, reply.\n\nCheers,\nTradie Sites Co.\n";
     tsc_mail($rec['email'], $subject, $body);
 }
 
 function tsc_email_recurring_invoice(array $rec): void {
     $cfg = tsc_cfg();
-    $plan = $cfg['plans'][$rec['plan']] ?? $cfg['plans']['monthly'];
+    $plan = $cfg['plans'][$rec['plan']] ?? $cfg['plans']['hosted'];
+    /* Self-host has no recurring billing — no-op if someone calls it by mistake. */
+    if (empty($plan['is_hosted'])) return;
     $bank = $cfg['bank'];
     $dueDate = date('j F Y', strtotime('+0 day'));
     $invoiceRef = $rec['reference'] . '-' . date('Ymd');
     $month = strtoupper(date('F Y'));
-    $subject = "Your Tradie Sites Co. invoice — {$month}";
+    $subject = "Your Tradie Sites Co. hosting invoice — {$month}";
     $body  = "G'day {$rec['contact_name']},\n\n";
-    $body .= "Your {$plan['recurring_label']} is due on {$dueDate}.\n\n";
+    $body .= "Your hosting fee ({$plan['recurring_label']}) is due on {$dueDate}.\n\n";
     $body .= "Transfer to:\n";
     $body .= "Account: {$bank['account_name']}\n";
     $body .= "BSB: {$bank['bsb']}\n";
     $body .= "Account number: {$bank['account_number']}\n";
     $body .= "Reference: {$invoiceRef}\n\n";
+    $body .= "This covers hosting, uptime monitoring and breakage fixes for the next month. If you've got content changes or new pages to add, reply and we'll quote those separately.\n\n";
+    $body .= "Miss this one and the site goes offline until it's cleared — disclosed at signup.\n\n";
     $body .= "Cheers,\nTradie Sites Co.\n";
     tsc_mail($rec['email'], $subject, $body);
 }

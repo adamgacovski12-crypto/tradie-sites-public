@@ -17,27 +17,58 @@ return [
         'account_number' => '{{BANK_ACCOUNT_NUMBER}}',
     ],
 
-    /* ── Plans ── */
+    /* ── Plans ──
+     * self_host: $200 one-time. We build it, hand over the files, they host it themselves. No ongoing fee, no ongoing service.
+     * hosted:    $200 setup + $80/month. We host it on Cloudflare, monitor uptime, fix breakages. Stop paying = site goes offline.
+     * New features or content changes are quoted separately on BOTH plans.
+     */
     'plans' => [
-        'monthly' => [
-            'key'     => 'monthly',
-            'label'   => 'Monthly',
+        'self_host' => [
+            'key'     => 'self_host',
+            'label'   => 'Self-host',
             'setup'   => 200,
+            'is_hosted' => false,
+            'recurring_amount'   => 0,
+            'recurring_interval' => null,
+            'recurring_label'    => 'No ongoing fee',
+            'headline' => 'Own the files, host wherever you like. One-off $200 and it is yours.',
+            'sub'      => '$200 one-time',
+            'includes' => [
+                'Custom 5-page website (same build as hosted)',
+                'Professional copywriting',
+                'Domain setup &amp; DNS guidance',
+                'Full source files handed over',
+                'Live within 24 hours',
+            ],
+            'excludes' => [
+                'Hosting (you arrange it)',
+                'Monitoring / breakage fixes',
+                'Future changes or new features',
+            ],
+        ],
+        'hosted' => [
+            'key'     => 'hosted',
+            'label'   => 'Hosted',
+            'setup'   => 200,
+            'is_hosted' => true,
             'recurring_amount'   => 80,
             'recurring_interval' => '+1 month',
             'recurring_label'    => '$80/month',
-            'headline' => 'Most flexible — cancel anytime after first month',
+            'headline' => 'We host and look after it. Stop paying and the site goes offline.',
             'sub'      => '$200 setup + $80/month',
-        ],
-        'annual' => [
-            'key'     => 'annual',
-            'label'   => 'Annual',
-            'setup'   => 200,
-            'recurring_amount'   => 800,
-            'recurring_interval' => '+1 year',
-            'recurring_label'    => '$800/year',
-            'headline' => 'Most popular — tradies pay less, get more (save $160 / 2 months free)',
-            'sub'      => '$200 setup + $800/year',
+            'includes' => [
+                'Custom 5-page website',
+                'Professional copywriting',
+                'Domain setup &amp; DNS',
+                'Fast Cloudflare hosting + SSL',
+                'Uptime monitoring',
+                'Breakage fixes (stuff that breaks on its own)',
+                'Email &amp; phone support',
+            ],
+            'excludes' => [
+                'Content edits or new pages (quoted separately)',
+                'New features or redesigns (quoted separately)',
+            ],
         ],
     ],
 

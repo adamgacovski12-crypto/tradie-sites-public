@@ -14,9 +14,12 @@ if ($record === null) {
     exit;
 }
 
-$plan    = $cfg['plans'][$record['plan']] ?? $cfg['plans']['monthly'];
+$plan    = $cfg['plans'][$record['plan']] ?? $cfg['plans']['hosted'];
 $bank    = $cfg['bank'];
-$nextDue = date('j F Y', strtotime(($record['date'] ?? 'now') . ' ' . $plan['recurring_interval']));
+$isHosted = !empty($plan['is_hosted']);
+$nextDue = $isHosted
+    ? date('j F Y', strtotime(($record['date'] ?? 'now') . ' ' . $plan['recurring_interval']))
+    : null;
 
 $pageUrl = 'https://site.tradiebud.tech/signup/pay';
 header('Content-Type: text/html; charset=UTF-8');
@@ -116,7 +119,13 @@ header('Content-Type: text/html; charset=UTF-8');
                 <li>You transfer <strong>$<?= number_format((float)$plan['setup'], 2) ?></strong> (reference: <strong><?= tsc_h($record['reference']) ?></strong>).</li>
                 <li>Adam confirms payment within 24 hours.</li>
                 <li>Site goes live within 24 hours of payment confirmation.</li>
-                <li>Your next payment (<?= tsc_h($plan['recurring_label']) ?>, due <?= tsc_h($nextDue) ?>) will be invoiced via email.</li>
+<?php if ($isHosted): ?>
+                <li>First hosting invoice (<strong>$80</strong>, due <strong><?= tsc_h($nextDue) ?></strong>) lands in your inbox a week before that date. Miss a payment and the site goes offline until it's sorted.</li>
+                <li>Want to add pages, change copy, or rebuild a section later? Reply to any of our emails — we quote changes separately.</li>
+<?php else: ?>
+                <li>We email you the full site source files + DNS setup instructions. From there it's yours to host wherever.</li>
+                <li>Want changes or a fresh build later? Reply to any of our emails — we quote changes separately.</li>
+<?php endif; ?>
             </ol>
         </div>
 

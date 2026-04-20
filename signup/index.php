@@ -48,7 +48,19 @@ header('Content-Type: text/html; charset=UTF-8');
         .plan-card h3 { font-size: 2rem; color: var(--black); letter-spacing: 1px; }
         .plan-card .price { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 3.2rem; color: var(--orange); margin: 4px 0 2px; letter-spacing: 1px; }
         .plan-card .price small { font-size: 1rem; color: var(--gray-700); font-weight: 600; letter-spacing: 0; }
-        .plan-card .tagline { color: var(--gray-700); font-size: .98rem; margin: 12px 0 18px; min-height: 52px; }
+        .plan-card .tagline { color: var(--gray-700); font-size: .98rem; margin: 12px 0 14px; min-height: 44px; }
+        .plan-card .plan-includes, .plan-card .plan-excludes { list-style: none; padding: 0; margin: 0 0 14px; text-align: left; }
+        .plan-card .plan-includes li { padding: 4px 0 4px 22px; position: relative; font-size: .92rem; color: var(--black); }
+        .plan-card .plan-includes li::before { content: '✓'; position: absolute; left: 0; color: var(--orange); font-weight: 800; }
+        .plan-card .plan-excludes { margin-top: 6px; padding-top: 10px; border-top: 2px dashed var(--gray-700); }
+        .plan-card .plan-excludes li.heading { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-700); font-size: .78rem; padding: 0 0 4px; }
+        .plan-card .plan-excludes li { padding: 3px 0 3px 22px; position: relative; font-size: .88rem; color: var(--gray-700); }
+        .plan-card .plan-excludes li:not(.heading)::before { content: '×'; position: absolute; left: 0; color: var(--gray-700); font-weight: 800; }
+        .plan-disclosure {
+            background: #fff7d6; border: 3px solid var(--black); padding: 14px 18px;
+            margin-top: 20px; font-size: .9rem; color: var(--black);
+        }
+        .plan-disclosure strong { color: var(--black); }
         .plan-card .choose {
             display: inline-block; background: var(--black); color: var(--orange);
             padding: 14px 22px; font-family: 'Barlow Condensed', sans-serif;
@@ -171,9 +183,23 @@ header('Content-Type: text/html; charset=UTF-8');
                         <h3><?= tsc_h(strtoupper($p['label'])) ?></h3>
                         <div class="price"><?= tsc_h($p['sub']) ?></div>
                         <div class="tagline"><?= tsc_h($p['headline']) ?></div>
+                        <ul class="plan-includes">
+<?php foreach (($p['includes'] ?? []) as $inc): ?>
+                            <li><?= $inc /* pre-sanitised entities in config */ ?></li>
+<?php endforeach; ?>
+                        </ul>
+                        <ul class="plan-excludes">
+                            <li class="heading">Not included</li>
+<?php foreach (($p['excludes'] ?? []) as $exc): ?>
+                            <li><?= $exc ?></li>
+<?php endforeach; ?>
+                        </ul>
                         <span class="choose">Choose <?= tsc_h(strtoupper($p['label'])) ?></span>
                     </div>
 <?php endforeach; ?>
+                </div>
+                <div class="plan-disclosure">
+                    <strong>What you're agreeing to:</strong> New pages, content edits and new features are quoted separately on both plans — $80/month covers hosting, monitoring and breakage fixes only. If you pick <strong>Hosted</strong> and stop paying, the site goes offline. That's standard for any hosting provider — disclosed here upfront so there's no surprises.
                 </div>
             </div>
 
@@ -421,7 +447,9 @@ document.getElementById('footerYear').textContent = new Date().getFullYear();
     function renderReview() {
         const get = id => document.getElementById(id).value.trim();
         const planKey = document.getElementById('plan').value;
-        const planLabel = planKey === 'annual' ? 'Annual — $200 setup + $800/year' : 'Monthly — $200 setup + $80/month';
+        const planLabel = planKey === 'self_host'
+            ? 'Self-host — $200 one-time (we build + hand over files, you host it)'
+            : 'Hosted — $200 setup + $80/month (we host, monitor and fix breakages)';
         const logo = document.getElementById('f-logo').files[0];
         const photos = document.getElementById('f-photos').files;
         const photoNames = [];

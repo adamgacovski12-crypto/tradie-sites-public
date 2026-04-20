@@ -151,7 +151,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <li><?= h($s) ?></li>
 <?php endforeach; ?>
         </ul>
-        <p class="lede reveal" style="margin-top: 36px; text-align: center;">Plus everything on the standard <a href="/" style="color: var(--orange); font-weight: 600;">Tradie Sites Co.</a> build — mobile-responsive layout, contact form, photo gallery, Cloudflare hosting, SEO-ready meta tags and schema, and two content edits per month.</p>
+        <p class="lede reveal" style="margin-top: 36px; text-align: center;">Plus everything on the standard <a href="/" style="color: var(--orange); font-weight: 600;">Tradie Sites Co.</a> build — mobile-responsive layout, contact form, photo gallery, SEO-ready meta tags and schema. Pick <strong>Hosted</strong> ($80/month) and we keep it online, monitor uptime and fix breakages; pick <strong>Self-host</strong> ($200 one-off) and the files are all yours. Content changes after go-live are quoted separately on both plans.</p>
     </div>
 </section>
 
@@ -160,37 +160,40 @@ header('Content-Type: text/html; charset=UTF-8');
         <div class="section-heading reveal">
             <span class="section-kicker">No Hidden Fees</span>
             <h2>Pricing — same for every trade</h2>
-            <p>Simple, transparent, no lock-in.</p>
+            <p>Two plans. Pick the one that fits.</p>
         </div>
         <div class="pricing-cards">
             <div class="pricing-card reveal">
-                <h3>Setup</h3>
+                <h3>Self-host</h3>
                 <div class="price">$200</div>
-                <div class="price-sub">one-time</div>
+                <div class="price-sub">one-time — no ongoing fee</div>
                 <ul>
                     <li>Custom 5-page <?= h(strtolower($name)) ?> website</li>
                     <li>Professional copywriting</li>
-                    <li>Domain setup &amp; DNS</li>
-                    <li>Photo gallery setup</li>
+                    <li>Domain setup &amp; DNS guidance</li>
+                    <li>Full source files handed over</li>
                     <li>Live within 24 hours</li>
+                    <li>You arrange your own hosting</li>
                 </ul>
-                <a href="/signup/" class="btn">Start Setup</a>
+                <a href="/signup/" class="btn">Pay $200 Once</a>
             </div>
             <div class="pricing-card popular reveal">
                 <div class="popular-banner">Most Popular</div>
-                <h3>Monthly</h3>
-                <div class="price">$80</div>
-                <div class="price-sub">per month — cancel anytime</div>
+                <h3>Hosted</h3>
+                <div class="price">$200<span style="font-size: 1.3rem; color: var(--gray-700); font-weight: 600; letter-spacing: 0;"> + $80/mo</span></div>
+                <div class="price-sub">we host &amp; keep it online</div>
                 <ul>
+                    <li>Everything in Self-host, plus</li>
                     <li>Fast Cloudflare hosting + SSL</li>
-                    <li>2 content edits per month</li>
-                    <li>Gallery photo updates</li>
+                    <li>Uptime monitoring</li>
+                    <li>Breakage fixes on the house</li>
                     <li>Email &amp; phone support</li>
-                    <li>30-day cancel notice</li>
+                    <li>No lock-in — cancel any time</li>
                 </ul>
-                <a href="/signup/" class="btn btn-orange">Get Started</a>
+                <a href="/signup/" class="btn btn-orange">Start Hosted Plan</a>
             </div>
         </div>
+        <p class="lede reveal" style="margin-top: 28px; text-align: center; font-size: .92rem; color: var(--gray-700);"><strong>Straight up:</strong> content edits, new pages and new features are quoted separately on both plans. On the Hosted plan, if you stop paying the $80/month the site goes offline. Flagged upfront — no surprises.</p>
     </div>
 </section>
 
