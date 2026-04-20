@@ -17,6 +17,8 @@ if (php_sapi_name() !== 'cli') {
     exit(1);
 }
 
+require __DIR__ . '/_markdown.php';
+
 $root = dirname(__DIR__);
 
 if ($argc < 2 || trim((string)$argv[1]) === '') {
@@ -73,6 +75,13 @@ WRITING RULES:
 - Do NOT invent statistics or cite sources you can't verify.
 - Include EXACTLY 2 or 3 internal links to /trades/[slug] pages where naturally relevant, using markdown link syntax like [plumbers](/trades/plumber). Pick links from the list below that fit the topic.
 - End with a single CTA paragraph that points readers to contacting Tradie Sites Co. (link the words "book a site" to "/#contact").
+
+CRITICAL MARKDOWN FORMAT RULES — failure here breaks the renderer:
+- Return body_markdown as PLAIN MARKDOWN with NO leading whitespace on any line. Every line MUST start flush-left at column 0.
+- Do NOT indent paragraphs. Do NOT indent headings. Do NOT indent list items.
+- Use proper markdown syntax: "## " for H2, "### " for H3, blank lines between paragraphs, "- " for bullet points, "**bold**" for bold.
+- Separate paragraphs with a single blank line. No indentation on the blank line either.
+- NEVER prefix any line with 4 or more spaces — Parsedown treats that as a code block.
 
 AVAILABLE /trades/ LINKS:
 {$tradeList}
@@ -168,7 +177,7 @@ if (!is_array($parsed) || empty($parsed['body_markdown']) || empty($parsed['meta
 
 $metaTitle = trim((string)$parsed['meta_title']);
 $metaDesc  = trim((string)$parsed['meta_description'] ?? '');
-$bodyMd    = trim((string)$parsed['body_markdown']);
+$bodyMd    = tradie_normalise_markdown(trim((string)$parsed['body_markdown']));
 $faqs      = [];
 foreach (($parsed['faqs'] ?? []) as $f) {
     $q = trim((string)($f['q'] ?? ''));

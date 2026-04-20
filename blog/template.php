@@ -4,6 +4,7 @@
  */
 
 require __DIR__ . '/../lib/Parsedown.php';
+require __DIR__ . '/_markdown.php';
 
 $slug = $_GET['slug'] ?? ($postSlug ?? '');
 $slug = preg_replace('/[^a-z0-9-]/', '', strtolower($slug));
@@ -59,7 +60,7 @@ $pageUrl = "https://site.tradiebud.tech/blog/{$slug}";
 /* ── Body HTML + reading time ── */
 $parsedown = new Parsedown();
 $parsedown->setSafeMode(true);
-$bodyHtml = $parsedown->text($bodyMd);
+$bodyHtml = $parsedown->text(tradie_normalise_markdown($bodyMd));
 
 $wordCount = str_word_count(strip_tags($bodyHtml));
 $readMins  = max(2, (int)ceil($wordCount / 200));
