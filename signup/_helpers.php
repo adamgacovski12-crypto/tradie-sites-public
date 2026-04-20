@@ -115,7 +115,7 @@ function tsc_csv_header(): array {
         'date','reference','plan','business_name','contact_name','phone','email',
         'abn','trade','suburbs','licence','tagline','services','years',
         'existing_website','existing_fb','logo_path','photo_paths',
-        'status','payment_confirmed_date','live_url','deployed_date'
+        'status','payment_confirmed_date','live_url','deployed_date','last_invoice_sent'
     ];
 }
 
@@ -394,4 +394,60 @@ function tsc_email_recurring_invoice(array $rec): void {
     $body .= "Miss this one and the site goes offline until it's cleared — disclosed at signup.\n\n";
     $body .= "Cheers,\nTradie Sites Co.\n";
     tsc_mail($rec['email'], $subject, $body);
+}
+
+/* ── Record updates for cron + admin actions ── */
+function tsc_update_last_invoice_sent(string $reference, string $when): bool {
+    $cfg = tsc_cfg();
+    $path = $cfg['paths']['csv_file'];
+    if (!file_exists($path)) return false;
+    $rows = tsc_csv_read_all();
+    $found = false;
+    foreach ($rows as &$r) {
+        if ($r['reference'] === $reference) {
+            $r['last_invoice_sent'] = $when;
+            $found = true;
+            break;
+        }
+    }
+    unset($r);
+    if (!$found) return false;
+    $fp = fopen($path, 'w');
+    if ($fp === false) return false;
+    flock($fp, LOCK_EX);
+    fputcsv($fp, tsc_csv_header());
+    foreach ($rows as $r) {
+        $out = [];
+        foreach (tsc_csv_header() as $col) $out[] = (string)($r[$col] ?? '');
+        fputcsv($fp, $out);
+    }
+    flock($fp, LOCK_UN);
+    fclose($fp);
+
+    $json = $cfg['paths']['records_dir'] . '/' . $reference . '.json';
+    if (file_exists($json)) {
+        $rec = json_decode((string)@file_get_contents($json), true) ?: [];
+        $rec['last_invoice_sent'] = $when;
+        @file_put_contents($json, json_encode($rec, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    }
+    return true;
+}
+
+/* ── Admin audit log: append one line per mutating action ── */
+function tsc_admin_log(string $action, string $reference, string $detail = ''): void {
+    $cfg = tsc_cfg();
+    tsc_ensure_dirs();
+    $path = $cfg['paths']['signups_dir'] . '/admin.log';
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'cli';
+    $user = $_SERVER['PHP_AUTH_USER'] ?? '-';
+    $line = sprintf(
+        "[%s] user=%s ip=%s action=%s reference=%s%s\n",
+        date('Y-m-d H:i:s'),
+        $user,
+        $ip,
+        $action,
+        $reference,
+        $detail !== '' ? ' ' . $detail : ''
+    );
+    @file_put_contents($path, $line, FILE_APPEND | LOCK_EX);
 }

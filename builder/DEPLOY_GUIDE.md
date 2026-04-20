@@ -119,7 +119,23 @@ If not:
 
 ### 13. First-hosting-invoice reminder
 
-For Hosted plan clients only: the recurring invoice cron will fire on signup-date + 1 month. Confirm the cron is running on the server (`crontab -l` should show an entry pointing to `/admin-leads/action.php?action=send_invoice&reference=...` or similar — TODO: wire this up in a later build).
+For Hosted plan clients, recurring invoices fire automatically from the daily cron at `admin-leads/cron.php`. An invoice lands in the client's inbox ~23 days after the deploy date (roughly 7 days before the 30-day billing anniversary), and then every ~30 days after the last invoice.
+
+**Server crontab entry** (one-off to add per server, 7:05am Sydney time daily):
+
+```bash
+crontab -e
+# Add this line:
+5 7 * * * /usr/bin/php /var/www/site.tradiebud.tech/admin-leads/cron.php >> /var/www/site.tradiebud.tech/signups/cron.log 2>&1
+```
+
+The cron also cleans expired rate-limit files and stale download ZIPs. Safe to run daily. Pass `--dry-run` to see what would happen without sending/deleting:
+
+```bash
+php admin-leads/cron.php --dry-run
+```
+
+If you ever need to manually re-send an invoice to a specific client outside the cron cadence, use the `send_invoice` action from `/admin-leads/` — that also updates `last_invoice_sent` so the next cron run won't double-bill.
 
 ---
 

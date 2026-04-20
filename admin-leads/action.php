@@ -170,12 +170,14 @@ if ($action === 'mark_paid') {
     if ($rec) {
         try { tsc_email_payment_confirmed($rec); } catch (Throwable $e) {}
     }
+    tsc_admin_log('mark_paid', $reference);
     header('Location: /admin-leads/?flash=' . urlencode($reference . ' marked paid + customer emailed'));
     exit;
 }
 
 if ($action === 'cancel') {
     tsc_update_status($reference, 'cancelled');
+    tsc_admin_log('cancel', $reference);
     header('Location: /admin-leads/?flash=' . urlencode($reference . ' cancelled'));
     exit;
 }
@@ -184,6 +186,8 @@ if ($action === 'send_invoice') {
     $rec = tsc_load_record($reference);
     if ($rec) {
         try { tsc_email_recurring_invoice($rec); } catch (Throwable $e) {}
+        tsc_update_last_invoice_sent($reference, date('Y-m-d H:i:s'));
+        tsc_admin_log('send_invoice', $reference, 'manual');
         header('Location: /admin-leads/?flash=' . urlencode('Invoice sent to ' . $reference));
         exit;
     }
@@ -201,9 +205,11 @@ if ($action === 'prep_build') {
     exec($cmd, $output, $retval);
     $tail = array_slice($output, -12);
     if ($retval !== 0) {
+        tsc_admin_log('prep_build', $reference, 'FAILED: ' . implode(' | ', $tail));
         header('Location: /admin-leads/?flash=' . urlencode('PREP failed: ' . implode(' | ', $tail)));
         exit;
     }
+    tsc_admin_log('prep_build', $reference);
     header('Location: /admin-leads/?flash=' . urlencode($reference . ' prepped. Open /builds/' . $reference . '/ in Claude Code.'));
     exit;
 }
@@ -230,6 +236,7 @@ if ($action === 'mark_deployed') {
     if (function_exists('tsc_email_site_live')) {
         try { tsc_email_site_live($rec, $liveUrl); } catch (Throwable $e) {}
     }
+    tsc_admin_log('mark_deployed', $reference, 'url=' . $liveUrl);
 
     header('Location: /admin-leads/?flash=' . urlencode($reference . ' deployed → ' . $liveUrl));
     exit;
