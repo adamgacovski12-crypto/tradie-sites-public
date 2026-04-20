@@ -3,6 +3,7 @@ signups/signups.csv
 signups/records/
 signups/assets/
 signups/ratelimits/
+signups/mail.log
 builds/
 .env
 *.log

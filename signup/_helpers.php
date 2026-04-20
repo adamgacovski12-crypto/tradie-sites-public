@@ -200,15 +200,90 @@ function tsc_load_record(string $reference): ?array {
     return is_array($data) ? $data : null;
 }
 
-/* ── Email helpers ── */
+/* ── Email helpers ──
+ * Primary sender: ZeptoMail API (reliable deliverability). Uses the ZEPTO_TOKEN
+ * env var set via .htaccess SetEnv. Falls back to PHP mail() when the token
+ * isn't configured (local dev) OR the API call fails transiently.
+ *
+ * Logs failures to signups/mail.log so Adam can investigate deliverability
+ * issues without tailing live server logs.
+ */
 function tsc_mail(string $to, string $subject, string $body, ?string $replyTo = null): bool {
-    $cfg = tsc_cfg();
+    $cfg  = tsc_cfg();
     $from = $cfg['from_email'];
-    $headers  = "From: {$cfg['from_name']} <{$from}>\r\n";
-    $headers .= 'Reply-To: ' . ($replyTo ?? $from) . "\r\n";
+    $fromName = $cfg['from_name'];
+    $reply = $replyTo ?? $from;
+
+    $token = getenv('ZEPTO_TOKEN');
+    if (is_string($token) && $token !== '') {
+        $ok = tsc_mail_via_zeptomail($to, $subject, $body, $from, $fromName, $reply, $token);
+        if ($ok) return true;
+        /* ZeptoMail failed — fall through to PHP mail() as last resort */
+        tsc_mail_log("ZeptoMail failed for {$to} (subject: {$subject}) — falling back to PHP mail()");
+    }
+
+    $headers  = "From: {$fromName} <{$from}>\r\n";
+    $headers .= "Reply-To: {$reply}\r\n";
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
     $headers .= 'X-Mailer: PHP/' . phpversion();
-    return @mail($to, $subject, $body, $headers);
+    $ok = @mail($to, $subject, $body, $headers);
+    if (!$ok) tsc_mail_log("PHP mail() also failed for {$to} (subject: {$subject})");
+    return $ok;
+}
+
+function tsc_mail_via_zeptomail(string $to, string $subject, string $body, string $from, string $fromName, string $reply, string $token): bool {
+    $endpoint = 'https://api.zeptomail.com.au/v1.1/email';
+    $payload = [
+        'from'     => ['address' => $from, 'name' => $fromName],
+        'to'       => [['email_address' => ['address' => $to, 'name' => '']]],
+        'reply_to' => [['address' => $reply, 'name' => $fromName]],
+        'subject'  => $subject,
+        'textbody' => $body,
+    ];
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $authHeader = 'Authorization: Zoho-enczapikey ' . $token;
+
+    /* curl first, stream fallback — same pattern as chat.php / generate.php */
+    if (function_exists('curl_init')) {
+        $ch = curl_init($endpoint);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $json,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json', $authHeader],
+            CURLOPT_TIMEOUT => 10,
+        ]);
+        $raw  = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+    } else {
+        $ctx = stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => "Content-Type: application/json\r\nAccept: application/json\r\n{$authHeader}\r\n",
+                'content' => $json,
+                'timeout' => 10,
+                'ignore_errors' => true,
+            ],
+        ]);
+        $raw = @file_get_contents($endpoint, false, $ctx);
+        $code = 0;
+        if (isset($http_response_header[0]) && preg_match('#\s(\d{3})\s#', $http_response_header[0], $m)) {
+            $code = (int)$m[1];
+        }
+    }
+
+    if ($code >= 200 && $code < 300) return true;
+
+    tsc_mail_log("ZeptoMail HTTP {$code} for {$to} — body: " . substr((string)$raw, 0, 400));
+    return false;
+}
+
+function tsc_mail_log(string $line): void {
+    $cfg = tsc_cfg();
+    tsc_ensure_dirs();
+    $path = $cfg['paths']['signups_dir'] . '/mail.log';
+    @file_put_contents($path, '[' . date('Y-m-d H:i:s') . '] ' . $line . "\n", FILE_APPEND | LOCK_EX);
 }
 
 function tsc_email_customer_receipt(array $rec): void {

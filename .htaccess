@@ -4,6 +4,12 @@
 # Set Groq API key (replace with real key)
 # SetEnv GROQ_API_KEY your_key_here  (set on server, not in git)
 
+# Set ZeptoMail API token for transactional email delivery.
+# Generate the send-mail token at https://www.zoho.com/zeptomail/ (AU region) with
+# info@tradiebud.tech configured as a verified sender + SPF/DKIM on tradiebud.tech.
+# Without this the code falls back to PHP mail() which hits spam folders on shared hosting.
+# SetEnv ZEPTO_TOKEN your_zeptomail_send_token_here  (set on server, not in git)
+
 # Set admin email
 SetEnv ADMIN_EMAIL info@tradiebud.tech
 
