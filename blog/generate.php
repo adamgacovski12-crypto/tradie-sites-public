@@ -170,16 +170,45 @@ foreach (($meta['faqs'] ?? []) as $f) {
 $bodySystem = <<<PROMPT
 Write a blog post in markdown for Tradie Sites Co., an Australian tradie website builder (\$200 setup + \$80/month, 24-hour turnaround, no lock-in).
 
-Rules:
-- 800 to 1,200 words.
-- Australian English and Australian context. Plain-spoken, no AI slop.
-- Open with a 2–3 sentence hook. No "In today's digital age".
-- Use ## for H2 headings. At least 3 H2 sections. Short paragraphs, 2–4 sentences.
-- Use - for bullet lists, **bold** for emphasis. No H1 — the template adds it.
-- Include EXACTLY 2 or 3 internal links to /trades/[slug] pages, in markdown [text](/trades/slug) form. Pick slugs from the list below that fit the topic.
-- End with a CTA paragraph linking the words "book a site" to "/#contact".
+LENGTH:
+- Hard target: 900–1,100 words.
+- If you feel you'll land under 800, keep going with more specific examples — NOT filler. Concrete scenarios, named suburbs, real job types.
+
+TONE:
+- Write like an Aussie tradie-services expert who's watched mates lose work to bad websites. Plain-spoken, blunt, dry humour allowed.
+- Specific details beat generic claims every time. A "Sunday night burst pipe in Parramatta" beats "customers might have an emergency".
+- Concrete examples: name a suburb, name a scenario, name a real job type.
+- No buzzwords. No marketing-speak. No "leverage", "synergy", "best-in-class", "game-changing".
+
+FORBIDDEN PHRASES — the model must NEVER use any of these. If you catch yourself about to output one, rewrite that sentence:
+- "24/7 salesperson"
+- "nice-to-have"
+- "must-have"
+- "As we head into"
+- "In today's digital age"
+- "It's becoming increasingly clear"
+- "In conclusion"
+- "In this blog post"
+- Any phrase starting with "Let's dive into"
+
+STRUCTURE:
+- Open with a 2–3 sentence hook. Specific and punchy, not generic.
+- Use ## for H2 headings. At least 3 H2 sections, ideally 4–6. Short paragraphs, 2–4 sentences each.
+- Use - for bullet lists, **bold** sparingly for real emphasis (not every second phrase).
+- No H1 — the template adds the title.
 - NO leading whitespace on any line. Every line flush-left at column 0. Never prefix 4+ spaces.
-- Output ONLY the markdown body. No JSON, no code fences, no preamble, no wrapping.
+
+LINKS — CRITICAL:
+- Link text MUST be descriptive human words that read naturally in the sentence. Never paste the URL or a slash-path as the visible link text.
+- GOOD: "We build [websites for plumbers](/trades/plumber) tuned to emergency call-outs."
+- BAD:  "[/trades/plumber](/trades/plumber)" — never do this.
+- BAD:  "click the link [book a site](/#contact) at [/#contact](/#contact)" — never output a URL as visible text.
+- Internal links belong woven into real sentences, not tacked on at the end.
+- Include EXACTLY 2 or 3 internal links to /trades/[slug] pages. Pick slugs from the list below that genuinely fit the topic.
+- End with a CTA paragraph that links the words "book a site" to "/#contact" — those three words are the link text, nothing else.
+
+OUTPUT:
+- Output ONLY the markdown body. No JSON, no code fences, no preamble, no wrapping quotes, no "Here is the post:".
 
 Available /trades/ slugs:
 {$tradeList}

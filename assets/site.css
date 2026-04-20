@@ -272,11 +272,13 @@ ul { list-style: none; }
    ========================= */
 .breadcrumbs { margin-bottom: 20px; }
 .breadcrumbs ol {
-    display: flex; flex-wrap: wrap; gap: 10px;
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-wrap: wrap; gap: 8px;
     font-size: .82rem; color: rgba(255,255,255,.6); letter-spacing: 2px;
     font-family: 'Barlow Condensed', sans-serif;
     text-transform: uppercase; font-weight: 700;
 }
+.breadcrumbs li { display: inline; }
 .breadcrumbs li + li::before { content: '/'; margin-right: 10px; color: var(--orange); }
 .breadcrumbs a { color: var(--orange); }
 .breadcrumbs li[aria-current="page"] { color: var(--white); }

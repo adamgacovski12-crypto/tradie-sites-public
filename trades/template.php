@@ -250,6 +250,9 @@ document.getElementById('footerYear').textContent = new Date().getFullYear();
     if (!h || !n) return;
     h.addEventListener('click', () => n.classList.toggle('open'));
     n.querySelectorAll('a').forEach(a => a.addEventListener('click', () => n.classList.remove('open')));
+    const close = () => n.classList.remove('open');
+    document.addEventListener('DOMContentLoaded', close);
+    window.addEventListener('hashchange', close);
 })();
 (() => {
     document.documentElement.classList.add('reveal-ready');
