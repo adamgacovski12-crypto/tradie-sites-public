@@ -70,7 +70,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <a href="/trades/">Trades</a>
             <a href="/blog/">Blog</a>
             <a href="/#chat">Chat</a>
-            <a href="/#contact" class="nav-cta">Get Your Site</a>
+            <a href="/signup/" class="nav-cta">Sign Up</a>
         </div>
     </div>
 </nav>
@@ -87,7 +87,7 @@ header('Content-Type: text/html; charset=UTF-8');
         <h1>Tradie Website Templates — Australia Wide</h1>
         <p class="hero-sub">Pick your trade to see what we build for it. Same $200 setup + $80/month pricing. Tailored content, live in 24 hours.</p>
         <div class="hero-ctas">
-            <a href="/#contact" class="btn btn-orange">Get Started — $200</a>
+            <a href="/signup/" class="btn btn-orange">Get Started — $200</a>
             <a href="/#chat" class="btn btn-ghost">Ask Tradie-Bot</a>
         </div>
     </div>
@@ -120,7 +120,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <p>Pick your trade above or just tell us what you do — we'll handle the rest.</p>
         </div>
         <div class="cta-row">
-            <a href="/#contact" class="btn">Get Started — $200</a>
+            <a href="/signup/" class="btn">Get Started — $200</a>
             <a href="/#chat" class="btn btn-link">Or ask Tradie-Bot →</a>
         </div>
     </div>

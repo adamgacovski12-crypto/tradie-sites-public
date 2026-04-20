@@ -53,7 +53,13 @@ SetEnv ADMIN_EMAIL info@tradiebud.tech
 
     # Dynamic sitemap: /sitemap.xml -> /sitemap.php
     RewriteRule ^sitemap\.xml$ /sitemap.php [L]
+
+    # Pretty URL: /signup/pay -> /signup/pay.php (preserve query string for ?ref=)
+    RewriteRule ^signup/pay/?$ /signup/pay.php [L,QSA]
 </IfModule>
+
+# Block direct access to the entire /signups/ data folder (uploads, CSV, JSON records)
+RedirectMatch 403 ^/signups(/.*)?$
 
 # Block direct access to trade data + partial includes
 <FilesMatch "^_">

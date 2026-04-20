@@ -106,7 +106,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <a href="/trades/">Trades</a>
             <a href="/blog/">Blog</a>
             <a href="/#chat">Chat</a>
-            <a href="/#contact" class="nav-cta">Get Your Site</a>
+            <a href="/signup/" class="nav-cta">Sign Up</a>
         </div>
     </div>
 </nav>
@@ -124,7 +124,7 @@ header('Content-Type: text/html; charset=UTF-8');
         <h1><?= h($h1) ?></h1>
         <p class="hero-sub">Custom <?= h(strtolower($name)) ?> websites, live in 24 hours. $200 setup + $80/month. No lock-in contracts.</p>
         <div class="hero-ctas">
-            <a href="/#contact" class="btn btn-orange">Get Your <?= h($name) ?> Website</a>
+            <a href="/signup/" class="btn btn-orange">Get Your <?= h($name) ?> Website</a>
             <a href="/#chat" class="btn btn-ghost">Ask Tradie-Bot</a>
         </div>
     </div>
@@ -174,7 +174,7 @@ header('Content-Type: text/html; charset=UTF-8');
                     <li>Photo gallery setup</li>
                     <li>Live within 24 hours</li>
                 </ul>
-                <a href="/#contact" class="btn">Start Setup</a>
+                <a href="/signup/" class="btn">Start Setup</a>
             </div>
             <div class="pricing-card popular reveal">
                 <div class="popular-banner">Most Popular</div>
@@ -188,7 +188,7 @@ header('Content-Type: text/html; charset=UTF-8');
                     <li>Email &amp; phone support</li>
                     <li>30-day cancel notice</li>
                 </ul>
-                <a href="/#contact" class="btn btn-orange">Get Started</a>
+                <a href="/signup/" class="btn btn-orange">Get Started</a>
             </div>
         </div>
     </div>
@@ -219,7 +219,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <p>Fill in the form on the homepage and we'll be in touch within 24 hours — or ask our assistant any question first.</p>
         </div>
         <div class="cta-row">
-            <a href="/#contact" class="btn">Get Started — $200</a>
+            <a href="/signup/" class="btn">Get Started — $200</a>
             <a href="/#chat" class="btn btn-link">Ask Tradie-Bot →</a>
             <a href="/trades/" class="btn btn-link">All 30 trades →</a>
         </div>

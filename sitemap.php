@@ -12,6 +12,7 @@ $today = date('Y-m-d');
 $urls = [
     ['loc' => "{$base}/",         'lastmod' => $today, 'changefreq' => 'weekly',  'priority' => '1.0'],
     ['loc' => "{$base}/trades/",  'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.9'],
+    ['loc' => "{$base}/signup/",  'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.9'],
     ['loc' => "{$base}/blog/",    'lastmod' => $today, 'changefreq' => 'weekly',  'priority' => '0.8'],
 ];
 

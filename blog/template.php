@@ -160,7 +160,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <a href="/trades/">Trades</a>
             <a href="/blog/">Blog</a>
             <a href="/#chat">Chat</a>
-            <a href="/#contact" class="nav-cta">Get Your Site</a>
+            <a href="/signup/" class="nav-cta">Sign Up</a>
         </div>
     </div>
 </nav>
@@ -215,7 +215,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <p>We build tradie websites in 24 hours. $200 setup + $80/month. No lock-in.</p>
         </div>
         <div class="cta-row">
-            <a href="/#contact" class="btn">Get Started — $200</a>
+            <a href="/signup/" class="btn">Get Started — $200</a>
             <a href="/blog/" class="btn btn-link">More blog posts →</a>
         </div>
     </div>

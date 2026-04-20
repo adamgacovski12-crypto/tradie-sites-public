@@ -1,4 +1,8 @@
 leads.csv
+signups/signups.csv
+signups/records/
+signups/assets/
+signups/ratelimits/
 .env
 *.log
 .DS_Store

@@ -1,0 +1,10 @@
+AuthType Basic
+AuthName "Tradie Sites Co. Ops"
+AuthUserFile "/var/www/site.tradiebud.tech/admin-leads/.htpasswd"
+Require valid-user
+
+<Files ".htpasswd">
+    Require all denied
+    Order Allow,Deny
+    Deny from all
+</Files>
