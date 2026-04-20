@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
+Disallow: /signup/pay
+Disallow: /signup/pay/
+Disallow: /signup/submit.php
+Disallow: /admin-leads/
+Disallow: /admin-leads
+Disallow: /signups/
+Disallow: /builds/
+Disallow: /builder/
 
 Sitemap: https://site.tradiebud.tech/sitemap.xml

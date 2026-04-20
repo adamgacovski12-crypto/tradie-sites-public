@@ -14,6 +14,8 @@ $urls = [
     ['loc' => "{$base}/trades/",  'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.9'],
     ['loc' => "{$base}/signup/",  'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.9'],
     ['loc' => "{$base}/blog/",    'lastmod' => $today, 'changefreq' => 'weekly',  'priority' => '0.8'],
+    ['loc' => "{$base}/privacy",  'lastmod' => $today, 'changefreq' => 'yearly',  'priority' => '0.3'],
+    ['loc' => "{$base}/terms",    'lastmod' => $today, 'changefreq' => 'yearly',  'priority' => '0.3'],
 ];
 
 /* Trade pages */

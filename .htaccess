@@ -56,7 +56,14 @@ SetEnv ADMIN_EMAIL info@tradiebud.tech
 
     # Pretty URL: /signup/pay -> /signup/pay.php (preserve query string for ?ref=)
     RewriteRule ^signup/pay/?$ /signup/pay.php [L,QSA]
+
+    # Legal pretty URLs
+    RewriteRule ^privacy/?$ /privacy.php [L]
+    RewriteRule ^terms/?$   /terms.php   [L]
 </IfModule>
+
+# Custom 404 — served by /404.php (renders with Bold Tradie Energy chrome and an HTTP 404 status)
+ErrorDocument 404 /404.php
 
 # Block direct access to the entire /signups/ data folder (uploads, CSV, JSON records)
 RedirectMatch 403 ^/signups(/.*)?$

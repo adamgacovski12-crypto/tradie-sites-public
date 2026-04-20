@@ -320,6 +320,7 @@ header('Content-Type: text/html; charset=UTF-8');
                     <p>Double-check everything, then hit Submit &amp; Pay. We'll show you the bank details on the next screen.</p>
                 </div>
                 <div id="review-output"></div>
+                <p style="margin: 20px 0 0; font-size: .88rem; color: var(--gray-700); text-align: center;">By clicking <strong>Submit &amp; Pay</strong> you agree to our <a href="/terms" target="_blank" rel="noopener" style="color: var(--orange); font-weight: 700;">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener" style="color: var(--orange); font-weight: 700;">Privacy Policy</a>.</p>
                 <div class="signup-nav">
                     <button type="button" class="btn-back" data-back>← Back</button>
                     <button type="submit" class="btn-submit">Submit &amp; Pay →</button>
@@ -343,6 +344,10 @@ header('Content-Type: text/html; charset=UTF-8');
         <span class="aus-made">◆ Built in Australia</span>
         &nbsp;&middot;&nbsp;
         &copy; <span id="footerYear">2026</span> Tradie Sites Co.
+        &nbsp;&middot;&nbsp;
+        <a href="/privacy">Privacy</a>
+        &nbsp;&middot;&nbsp;
+        <a href="/terms">Terms</a>
     </div>
 </footer>
 

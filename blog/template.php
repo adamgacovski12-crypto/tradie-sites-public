@@ -235,6 +235,10 @@ header('Content-Type: text/html; charset=UTF-8');
         <span class="aus-made">◆ Built in Australia</span>
         &nbsp;&middot;&nbsp;
         &copy; <span id="footerYear">2026</span> Tradie Sites Co.
+        &nbsp;&middot;&nbsp;
+        <a href="/privacy">Privacy</a>
+        &nbsp;&middot;&nbsp;
+        <a href="/terms">Terms</a>
     </div>
 </footer>
 
