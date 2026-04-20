@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<!--
+    Tradie Sites Co. — Master Template (single-file reference).
+
+    This file is the STRUCTURAL SCAFFOLD for a 5-page client site. It contains every
+    section type that will appear across home/about/services/gallery/contact.
+
+    Claude Code's job (in the build session) is to:
+      1. Read this file to understand the structure, style tokens, and schema markup.
+      2. Write five separate HTML files (home.html, about.html, services.html,
+         gallery.html, contact.html) — each linking to the shared style.css.
+      3. Replace every {{COPY_PLACEHOLDER}} with real Australian-voice copy for this
+         specific tradie.
+      4. Replace the {{FALLBACK_IMAGE}} references with ./images/{real filename} once
+         photos/ has been copied to images/.
+
+    {{DATA_PLACEHOLDERS}} (in DOUBLE braces) get partially filled by prep.php before
+    Claude Code even opens this file — things like {{BUSINESS_NAME}}, {{ABN}},
+    {{LICENCE}}, {{SUBURBS_LIST}}.
+
+    COPY placeholders that Claude Code fills are written as [[BRACKETS]] so they
+    don't clash with data placeholders.
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[[PAGE_TITLE]] | {{BUSINESS_NAME}}</title>
+    <meta name="description" content="[[PAGE_DESCRIPTION_UNDER_160_CHARS]]">
+    <link rel="canonical" href="[[CANONICAL_URL]]">
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{BUSINESS_NAME}}">
+    <meta property="og:title" content="[[PAGE_TITLE]]">
+    <meta property="og:description" content="[[PAGE_DESCRIPTION_UNDER_160_CHARS]]">
+    <meta property="og:locale" content="en_AU">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./style.css">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "@id": "[[CANONICAL_URL]]#business",
+        "name": "{{BUSINESS_NAME}}",
+        "description": "[[META_DESCRIPTION]]",
+        "url": "[[CANONICAL_URL]]",
+        "telephone": "{{PHONE}}",
+        "email": "{{EMAIL}}",
+        "image": "[[HERO_IMAGE_URL]]",
+        "priceRange": "$$",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "{{SUBURB_PRIMARY}}",
+            "addressRegion": "{{STATE}}",
+            "addressCountry": "AU"
+        },
+        "areaServed": {{SUBURBS_JSON_ARRAY}},
+        "additionalProperty": [
+            { "@type": "PropertyValue", "name": "ABN",     "value": "{{ABN}}" },
+            { "@type": "PropertyValue", "name": "Licence", "value": "{{LICENCE}}" }
+        ]
+    }
+    </script>
+</head>
+<body>
+
+<!-- ── STICKY HEADER ── -->
+<header class="site-header">
+    <div class="wrap header-grid">
+        <a class="brand" href="./index.html" aria-label="{{BUSINESS_NAME}} home">
+            <img src="{{LOGO_URL}}" alt="{{BUSINESS_NAME}}" class="brand-logo" onerror="this.style.display='none'">
+            <span class="brand-name">{{BUSINESS_NAME}}</span>
+        </a>
+        <nav class="site-nav" aria-label="Main">
+            <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">
+                <span></span><span></span><span></span>
+                <span class="visually-hidden">Menu</span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="./index.html">Home</a></li>
+                <li><a href="./services.html">Services</a></li>
+                <li><a href="./gallery.html">Our Work</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <a class="call-btn" href="tel:{{PHONE}}">
+            <span class="call-icon" aria-hidden="true">📞</span>
+            <span class="call-label">Call {{PHONE}}</span>
+        </a>
+    </div>
+</header>
+
+<main>
+
+<!-- ══ SECTION: HERO (home page only) ══ -->
+<section class="hero">
+    <div class="wrap hero-grid">
+        <div class="hero-copy">
+            <span class="eyebrow">{{TRADE}} · {{SUBURB_PRIMARY}}</span>
+            <h1>[[HERO_H1]]</h1>
+            <p class="lede">[[HERO_SUBHEAD]]</p>
+            <div class="hero-ctas">
+                <a class="btn btn-primary" href="tel:{{PHONE}}">Call {{PHONE}}</a>
+                <a class="btn btn-ghost" href="./contact.html">Get a Quote</a>
+            </div>
+            <ul class="hero-trust">
+                <li>Licensed {{TRADE}}</li>
+                <li>{{YEARS_IN_BUSINESS}} years in the trade</li>
+                <li>Serving {{SUBURB_PRIMARY}} &amp; around</li>
+            </ul>
+        </div>
+        <div class="hero-media">
+            <!-- Claude Code: if there's at least one photo in ./images/, pick the strongest and use here -->
+            <img src="./images/[[HERO_IMAGE_FILENAME]]" alt="[[HERO_IMAGE_ALT]]" loading="eager">
+        </div>
+    </div>
+</section>
+
+<!-- ══ SECTION: SERVICES PREVIEW (home) / SERVICES FULL (services page) ══ -->
+<section class="services" id="services">
+    <div class="wrap">
+        <header class="section-head">
+            <span class="section-kicker">What We Do</span>
+            <h2>[[SERVICES_HEADLINE]]</h2>
+        </header>
+        <div class="service-grid">
+            <article class="service-card">
+                <div class="service-icon" aria-hidden="true">◆</div>
+                <h3>{{SERVICE_1}}</h3>
+                <p>[[SERVICE_1_DESCRIPTION]]</p>
+                <a class="service-link" href="./contact.html">Ask about this →</a>
+            </article>
+            <article class="service-card">
+                <div class="service-icon" aria-hidden="true">◆</div>
+                <h3>{{SERVICE_2}}</h3>
+                <p>[[SERVICE_2_DESCRIPTION]]</p>
+                <a class="service-link" href="./contact.html">Ask about this →</a>
+            </article>
+            <article class="service-card">
+                <div class="service-icon" aria-hidden="true">◆</div>
+                <h3>{{SERVICE_3}}</h3>
+                <p>[[SERVICE_3_DESCRIPTION]]</p>
+                <a class="service-link" href="./contact.html">Ask about this →</a>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- ══ SECTION: ABOUT PREVIEW (home) / ABOUT FULL (about page) ══ -->
+<section class="about">
+    <div class="wrap about-grid">
+        <div class="about-media">
+            <img src="./images/[[ABOUT_IMAGE_FILENAME]]" alt="[[ABOUT_IMAGE_ALT]]" loading="lazy">
+        </div>
+        <div class="about-copy">
+            <span class="section-kicker">About {{BUSINESS_NAME}}</span>
+            <h2>[[ABOUT_HEADLINE]]</h2>
+            <p>[[ABOUT_PARAGRAPH_1]]</p>
+            <p>[[ABOUT_PARAGRAPH_2]]</p>
+            <dl class="trust-strip">
+                <div><dt>ABN</dt><dd>{{ABN}}</dd></div>
+                <div><dt>Licence</dt><dd>{{LICENCE}}</dd></div>
+                <div><dt>In the trade</dt><dd>{{YEARS_IN_BUSINESS}} years</dd></div>
+            </dl>
+            <a class="btn btn-primary" href="./about.html">More about us</a>
+        </div>
+    </div>
+</section>
+
+<!-- ══ SECTION: TESTIMONIAL (optional — hide entire section if no testimonial) ══ -->
+<section class="testimonial" hidden>
+    <div class="wrap">
+        <blockquote>
+            <p>"[[TESTIMONIAL_QUOTE]]"</p>
+            <footer><cite>[[TESTIMONIAL_NAME]], [[TESTIMONIAL_SUBURB]]</cite></footer>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ══ SECTION: GALLERY PREVIEW (home) / GALLERY FULL (gallery page) ══ -->
+<section class="gallery">
+    <div class="wrap">
+        <header class="section-head">
+            <span class="section-kicker">Our Work</span>
+            <h2>[[GALLERY_HEADLINE]]</h2>
+        </header>
+        <div class="gallery-grid">
+            <!-- Claude Code: repeat this card per uploaded photo. Alt text should describe
+                 the work (not the file name). On the home page, cap to 4 photos + a "See all" tile. -->
+            <figure class="gallery-item">
+                <img src="./images/[[PHOTO_FILENAME]]" alt="[[PHOTO_ALT]]" loading="lazy">
+                <figcaption>[[PHOTO_CAPTION]]</figcaption>
+            </figure>
+        </div>
+    </div>
+</section>
+
+<!-- ══ SECTION: CONTACT (home snippet + full form on contact page) ══ -->
+<section class="contact">
+    <div class="wrap contact-grid">
+        <div class="contact-copy">
+            <span class="section-kicker">Get In Touch</span>
+            <h2>[[CONTACT_HEADLINE]]</h2>
+            <p>[[CONTACT_INTRO]]</p>
+            <dl class="contact-details">
+                <div><dt>Phone</dt><dd><a href="tel:{{PHONE}}">{{PHONE}}</a></dd></div>
+                <div><dt>Email</dt><dd><a href="mailto:{{EMAIL}}">{{EMAIL}}</a></dd></div>
+                <div><dt>Service area</dt><dd>{{SUBURBS_LIST}}</dd></div>
+                <div><dt>Hours</dt><dd>[[SERVICE_HOURS]]</dd></div>
+            </dl>
+        </div>
+        <form class="contact-form" action="{{FORM_ENDPOINT}}" method="POST">
+            <label>Your name
+                <input type="text" name="name" required autocomplete="name">
+            </label>
+            <label>Phone
+                <input type="tel" name="phone" required autocomplete="tel" inputmode="tel">
+            </label>
+            <label>Email
+                <input type="email" name="email" required autocomplete="email" inputmode="email">
+            </label>
+            <label>Suburb
+                <input type="text" name="suburb" autocomplete="address-level2">
+            </label>
+            <label>How can we help?
+                <textarea name="message" rows="4" required></textarea>
+            </label>
+            <button type="submit" class="btn btn-primary">Send it →</button>
+        </form>
+    </div>
+</section>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer class="site-footer">
+    <div class="wrap footer-grid">
+        <div>
+            <p class="brand-footer"><strong>{{BUSINESS_NAME}}</strong></p>
+            <p class="footer-desc">[[FOOTER_SHORT_DESCRIPTION]]</p>
+        </div>
+        <div>
+            <h4>Contact</h4>
+            <p><a href="tel:{{PHONE}}">{{PHONE}}</a></p>
+            <p><a href="mailto:{{EMAIL}}">{{EMAIL}}</a></p>
+        </div>
+        <div>
+            <h4>Service area</h4>
+            <p>{{SUBURBS_LIST}}</p>
+        </div>
+        <div>
+            <h4>Credentials</h4>
+            <p>ABN: {{ABN}}</p>
+            <p>Licence: {{LICENCE}}</p>
+        </div>
+    </div>
+    <div class="wrap legal">
+        <p>© {{CURRENT_YEAR}} {{BUSINESS_NAME}}. Licensed {{TRADE}} in {{SUBURB_PRIMARY}} and surrounding suburbs.</p>
+    </div>
+</footer>
+
+<script>
+/* Mobile menu toggle — vanilla JS, no framework */
+(() => {
+    const btn = document.getElementById('navToggle');
+    const nav = document.getElementById('navLinks');
+    if (!btn || !nav) return;
+    btn.addEventListener('click', () => {
+        const open = nav.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+        nav.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+    }));
+})();
+</script>
+
+</body>
+</html>

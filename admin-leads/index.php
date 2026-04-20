@@ -67,6 +67,8 @@ header('Content-Type: text/html; charset=UTF-8');
         }
         .badge.awaiting_payment { color: #FF6A00; border-color: #FF6A00; }
         .badge.paid             { color: #69d67a; border-color: #69d67a; }
+        .badge.prepped          { color: #8be9fd; border-color: #8be9fd; }
+        .badge.deployed         { color: #bd93f9; border-color: #bd93f9; }
         .badge.cancelled        { color: #888; border-color: #888; }
         .actions form { display: inline; margin: 0; }
         .actions button {
@@ -132,6 +134,27 @@ header('Content-Type: text/html; charset=UTF-8');
                     <input type="hidden" name="action" value="cancel">
                     <button type="submit" class="cancel">Cancel</button>
                 </form>
+<?php elseif ($status === 'paid'): ?>
+                <form method="POST" action="/admin-leads/action.php" onsubmit="return confirm('Prep build folder + CLAUDE_BUILD_PROMPT.md for <?= $ref ?>?');">
+                    <input type="hidden" name="reference" value="<?= $ref ?>">
+                    <input type="hidden" name="action" value="prep_build">
+                    <button type="submit">Prep build</button>
+                </form>
+<?php elseif ($status === 'prepped' || $status === 'deployed'): ?>
+                <a href="/admin-leads/action.php?action=view_build&reference=<?= $ref ?>" target="_blank">View build</a>
+                <form method="POST" action="/admin-leads/action.php" style="display:inline;margin-left:6px;">
+                    <input type="hidden" name="reference" value="<?= $ref ?>">
+                    <input type="hidden" name="action" value="download_zip">
+                    <button type="submit">Download ZIP</button>
+                </form>
+<?php if ($status === 'prepped'): ?>
+                <form method="POST" action="/admin-leads/action.php" onsubmit="var u=prompt('Live URL (include https://):', 'https://'); if(!u)return false; this.live_url.value=u; return true;" style="display:inline;margin-left:6px;">
+                    <input type="hidden" name="reference" value="<?= $ref ?>">
+                    <input type="hidden" name="action" value="mark_deployed">
+                    <input type="hidden" name="live_url" value="">
+                    <button type="submit">Mark deployed</button>
+                </form>
+<?php endif; ?>
 <?php else: ?>
                 <span style="color:#666;font-size:.82rem;">—</span>
 <?php endif; ?>
@@ -152,7 +175,12 @@ header('Content-Type: text/html; charset=UTF-8');
                     <dt>Logo</dt><dd><?= $r['logo_path'] ? tsc_h($r['logo_path']) : '—' ?></dd>
                     <dt>Photos</dt><dd><?= $r['photo_paths'] ? nl2br(tsc_h(str_replace(';', "\n", $r['photo_paths']))) : '—' ?></dd>
                     <dt>Payment confirmed</dt><dd><?= tsc_h($r['payment_confirmed_date'] ?? '') ?: '—' ?></dd>
+<?php if (!empty($r['live_url'])): ?>
+                    <dt>Live URL</dt><dd><a href="<?= tsc_h($r['live_url']) ?>" target="_blank" rel="noopener"><?= tsc_h($r['live_url']) ?></a></dd>
+                    <dt>Deployed</dt><dd><?= tsc_h($r['deployed_date'] ?? '') ?: '—' ?></dd>
+<?php endif; ?>
                     <dt>JSON record</dt><dd>/signups/records/<?= $ref ?>.json <span style="color:#666">(blocked from web)</span></dd>
+                    <dt>Build folder</dt><dd>/builds/<?= $ref ?>/ <span style="color:#666">(after prep; gitignored)</span></dd>
 <?php if (!empty($r['logo_path']) || !empty($r['photo_paths'])): ?>
                     <dt>Uploads</dt><dd><a class="assets-link" href="/admin-leads/action.php?action=list_uploads&reference=<?= $ref ?>">View uploaded files</a></dd>
 <?php endif; ?>

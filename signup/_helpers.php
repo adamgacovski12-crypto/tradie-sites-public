@@ -115,7 +115,7 @@ function tsc_csv_header(): array {
         'date','reference','plan','business_name','contact_name','phone','email',
         'abn','trade','suburbs','licence','tagline','services','years',
         'existing_website','existing_fb','logo_path','photo_paths',
-        'status','payment_confirmed_date'
+        'status','payment_confirmed_date','live_url','deployed_date'
     ];
 }
 
@@ -285,6 +285,16 @@ function tsc_email_payment_confirmed(array $rec): void {
         $body .= "Want changes or a rebuild later? Reply any time — we quote separately.\n\n";
     }
     $body .= "Any questions, reply.\n\nCheers,\nTradie Sites Co.\n";
+    tsc_mail($rec['email'], $subject, $body);
+}
+
+function tsc_email_site_live(array $rec, string $liveUrl): void {
+    $subject = 'Your site is live — ' . $liveUrl;
+    $body  = "G'day {$rec['contact_name']},\n\n";
+    $body .= "Your site is live at:\n{$liveUrl}\n\n";
+    $body .= "Ring us if anything looks off. Otherwise, you're sorted — customers can find you on Google now.\n\n";
+    $body .= "Reminder: content changes, new pages or new features are quoted separately. Reply any time and we'll sort a quote.\n\n";
+    $body .= "Cheers,\nTradie Sites Co.\n";
     tsc_mail($rec['email'], $subject, $body);
 }
 
