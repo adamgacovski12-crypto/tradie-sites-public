@@ -102,10 +102,10 @@ header('Content-Type: text/html; charset=UTF-8');
 <p>We use a small number of third-party services to run the business. They each process some of your data on our behalf:</p>
 <ul>
     <li><strong>Cloudflare (Pages + DNS)</strong> — hosts your website files if you're on the Hosted plan. May process data in Australia, the US, or other Cloudflare regions.</li>
-    <li><strong>ZeptoMail (Zoho)</strong> — sends transactional emails (receipts, invoices, go-live notifications).</li>
+    <li><strong>VentraIP</strong> — hosts our own server infrastructure (in Australia) and relays our outbound transactional emails (receipts, invoices, go-live notifications) via Exim from the info@tradiebud.tech mailbox.</li>
     <li><strong>Groq Cloud</strong> — processes chatbot conversations (your messages are sent to Groq's LLM API to generate replies). Groq's servers are in the US; messages are processed transiently and not used to train models.</li>
     <li><strong>Formspree</strong> — processes contact form submissions on delivered client sites.</li>
-    <li><strong>VentraIP</strong> — hosts our own server infrastructure, in Australia.</li>
+    <li><strong>ZeptoMail (Zoho)</strong> — optional fallback email provider, activated only if VentraIP email delivery becomes unreliable. Not in use by default.</li>
 </ul>
 <p>We don't share your data with anyone else unless:</p>
 <ul>
@@ -116,7 +116,7 @@ header('Content-Type: text/html; charset=UTF-8');
 <p>We don't sell, rent, or trade your personal information. Full stop.</p>
 
 <h2>6. Where your data lives</h2>
-<p>Your signup records and uploaded photos are stored on our server in Australia (VentraIP). Your delivered website, if hosted, lives on Cloudflare's edge network which includes servers in Australia, the US, Europe and Asia — standard for any modern CDN-hosted website. Chatbot messages are processed on Groq's US infrastructure. Transactional emails are processed through ZeptoMail's infrastructure (primarily in India and the US).</p>
+<p>Your signup records and uploaded photos are stored on our server in Australia (VentraIP). Outbound transactional emails are also relayed by VentraIP's Australian mail servers. Your delivered website, if hosted, lives on Cloudflare's edge network which includes servers in Australia, the US, Europe and Asia — standard for any modern CDN-hosted website. Chatbot messages are processed on Groq's US infrastructure.</p>
 <p>Cross-border transfers are covered by Australian Privacy Principle 8. By using our service, you acknowledge that your data may be processed outside Australia by these specific service providers, each of which has its own privacy standards.</p>
 
 <h2>7. How long we keep it</h2>

@@ -201,12 +201,16 @@ function tsc_load_record(string $reference): ?array {
 }
 
 /* ── Email helpers ──
- * Primary sender: ZeptoMail API (reliable deliverability). Uses the ZEPTO_TOKEN
- * env var set via .htaccess SetEnv. Falls back to PHP mail() when the token
- * isn't configured (local dev) OR the API call fails transiently.
  *
- * Logs failures to signups/mail.log so Adam can investigate deliverability
- * issues without tailing live server logs.
+ * Sender precedence (first one configured wins; failures log + try next):
+ *   1. SMTP-AUTH via Adam's cPanel mailbox on VentraIP.
+ *      Env vars:  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+ *      Example:   mail.tradiebud.tech, 587, info@tradiebud.tech, <mailbox pass>
+ *   2. ZeptoMail API (optional — flip on if SMTP deliverability tanks).
+ *      Env var:   ZEPTO_TOKEN
+ *   3. PHP mail() — last-resort fallback for local dev; don't rely on it in production.
+ *
+ * Every failure is logged to signups/mail.log so you can see what tried and why.
  */
 function tsc_mail(string $to, string $subject, string $body, ?string $replyTo = null): bool {
     $cfg  = tsc_cfg();
@@ -214,14 +218,23 @@ function tsc_mail(string $to, string $subject, string $body, ?string $replyTo = 
     $fromName = $cfg['from_name'];
     $reply = $replyTo ?? $from;
 
-    $token = getenv('ZEPTO_TOKEN');
-    if (is_string($token) && $token !== '') {
-        $ok = tsc_mail_via_zeptomail($to, $subject, $body, $from, $fromName, $reply, $token);
+    /* 1. cPanel SMTP */
+    $smtpHost = (string)getenv('SMTP_HOST');
+    if ($smtpHost !== '') {
+        $ok = tsc_mail_via_smtp($to, $subject, $body, $from, $fromName, $reply);
         if ($ok) return true;
-        /* ZeptoMail failed — fall through to PHP mail() as last resort */
-        tsc_mail_log("ZeptoMail failed for {$to} (subject: {$subject}) — falling back to PHP mail()");
+        tsc_mail_log("SMTP failed for {$to} (subject: {$subject}) — trying next sender");
     }
 
+    /* 2. ZeptoMail (optional) */
+    $token = (string)getenv('ZEPTO_TOKEN');
+    if ($token !== '') {
+        $ok = tsc_mail_via_zeptomail($to, $subject, $body, $from, $fromName, $reply, $token);
+        if ($ok) return true;
+        tsc_mail_log("ZeptoMail failed for {$to} (subject: {$subject}) — trying mail()");
+    }
+
+    /* 3. PHP mail() — last resort */
     $headers  = "From: {$fromName} <{$from}>\r\n";
     $headers .= "Reply-To: {$reply}\r\n";
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
@@ -229,6 +242,125 @@ function tsc_mail(string $to, string $subject, string $body, ?string $replyTo = 
     $ok = @mail($to, $subject, $body, $headers);
     if (!$ok) tsc_mail_log("PHP mail() also failed for {$to} (subject: {$subject})");
     return $ok;
+}
+
+/**
+ * Minimal SMTP-AUTH client. Zero external dependencies.
+ * Supports STARTTLS (port 587) and implicit TLS (port 465).
+ * AUTH LOGIN only (no PLAIN/CRAM-MD5) — enough for cPanel/Exim.
+ * Returns true on a successful send; logs + returns false on any error.
+ */
+function tsc_mail_via_smtp(string $to, string $subject, string $body, string $from, string $fromName, string $reply): bool {
+    $host = (string)getenv('SMTP_HOST');
+    $port = (int)(getenv('SMTP_PORT') ?: 587);
+    $user = (string)getenv('SMTP_USER');
+    $pass = (string)getenv('SMTP_PASS');
+    if ($host === '' || $user === '' || $pass === '') {
+        tsc_mail_log("SMTP config incomplete (host/user/pass required)");
+        return false;
+    }
+
+    $useImplicitTls = ($port === 465);
+    $connectHost = $useImplicitTls ? "ssl://{$host}" : $host;
+    $errno = 0; $errstr = '';
+    $fp = @stream_socket_client("{$connectHost}:{$port}", $errno, $errstr, 15, STREAM_CLIENT_CONNECT);
+    if ($fp === false) {
+        tsc_mail_log("SMTP connect failed {$host}:{$port} — {$errno} {$errstr}");
+        return false;
+    }
+    stream_set_timeout($fp, 15);
+
+    $read = function() use ($fp) {
+        $out = '';
+        while (!feof($fp)) {
+            $line = fgets($fp, 515);
+            if ($line === false) return $out;
+            $out .= $line;
+            /* SMTP multi-line replies use a '-' after the code on continuation lines; final line uses ' '. */
+            if (strlen($line) >= 4 && $line[3] === ' ') break;
+        }
+        return $out;
+    };
+    $send = function(string $cmd) use ($fp) { fwrite($fp, $cmd . "\r\n"); };
+    $expect = function(string $resp, string $prefix) {
+        return substr($resp, 0, strlen($prefix)) === $prefix;
+    };
+
+    $greeting = $read();
+    if (!$expect($greeting, '220')) { tsc_mail_log("SMTP greeting bad: " . trim($greeting)); fclose($fp); return false; }
+
+    $hostname = gethostname() ?: 'localhost';
+    $send("EHLO {$hostname}");
+    $ehlo1 = $read();
+    if (!$expect($ehlo1, '250')) { tsc_mail_log("SMTP EHLO bad: " . trim($ehlo1)); fclose($fp); return false; }
+
+    /* STARTTLS upgrade for port 587 (most cPanel hosts). */
+    if (!$useImplicitTls) {
+        $send('STARTTLS');
+        $tlsResp = $read();
+        if (!$expect($tlsResp, '220')) { tsc_mail_log("SMTP STARTTLS refused: " . trim($tlsResp)); fclose($fp); return false; }
+        if (!@stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            tsc_mail_log("SMTP TLS negotiation failed for {$host}:{$port}");
+            fclose($fp); return false;
+        }
+        /* Re-EHLO after TLS per RFC 3207 */
+        $send("EHLO {$hostname}");
+        $ehlo2 = $read();
+        if (!$expect($ehlo2, '250')) { tsc_mail_log("SMTP EHLO-after-TLS bad: " . trim($ehlo2)); fclose($fp); return false; }
+    }
+
+    /* AUTH LOGIN */
+    $send('AUTH LOGIN');
+    $authResp = $read();
+    if (!$expect($authResp, '334')) { tsc_mail_log("SMTP AUTH LOGIN rejected: " . trim($authResp)); fclose($fp); return false; }
+    $send(base64_encode($user));
+    $userResp = $read();
+    if (!$expect($userResp, '334')) { tsc_mail_log("SMTP username rejected: " . trim($userResp)); fclose($fp); return false; }
+    $send(base64_encode($pass));
+    $passResp = $read();
+    if (!$expect($passResp, '235')) { tsc_mail_log("SMTP password rejected: " . trim($passResp)); fclose($fp); return false; }
+
+    /* Envelope */
+    $send("MAIL FROM:<{$from}>");
+    $mfResp = $read();
+    if (!$expect($mfResp, '250')) { tsc_mail_log("SMTP MAIL FROM bad: " . trim($mfResp)); fclose($fp); return false; }
+    $send("RCPT TO:<{$to}>");
+    $rcptResp = $read();
+    if (!$expect($rcptResp, '250') && !$expect($rcptResp, '251')) {
+        tsc_mail_log("SMTP RCPT TO bad ({$to}): " . trim($rcptResp)); fclose($fp); return false;
+    }
+    $send('DATA');
+    $dataResp = $read();
+    if (!$expect($dataResp, '354')) { tsc_mail_log("SMTP DATA refused: " . trim($dataResp)); fclose($fp); return false; }
+
+    /* Headers + body. Dot-stuffing: any line starting with '.' must be escaped. */
+    $messageId = '<' . bin2hex(random_bytes(8)) . '@' . (preg_replace('/^[^@]+@/', '', $from) ?: 'tradiebud.tech') . '>';
+    $date = date('r');
+    $subjEnc = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    $fromEnc = '=?UTF-8?B?' . base64_encode($fromName) . '?=';
+
+    $headers  = "Date: {$date}\r\n";
+    $headers .= "From: {$fromEnc} <{$from}>\r\n";
+    $headers .= "To: <{$to}>\r\n";
+    $headers .= "Reply-To: <{$reply}>\r\n";
+    $headers .= "Subject: {$subjEnc}\r\n";
+    $headers .= "Message-ID: {$messageId}\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+    $headers .= "Content-Transfer-Encoding: 8bit\r\n";
+
+    $normalisedBody = preg_replace('/(?<!\r)\n/', "\r\n", $body);
+    /* Dot-stuff lines that start with a single dot */
+    $dotSafeBody = preg_replace('/^\./m', '..', $normalisedBody);
+
+    fwrite($fp, $headers . "\r\n" . $dotSafeBody . "\r\n.\r\n");
+    $finalResp = $read();
+    if (!$expect($finalResp, '250')) { tsc_mail_log("SMTP DATA end refused: " . trim($finalResp)); fclose($fp); return false; }
+
+    $send('QUIT');
+    @$read();
+    fclose($fp);
+    return true;
 }
 
 function tsc_mail_via_zeptomail(string $to, string $subject, string $body, string $from, string $fromName, string $reply, string $token): bool {
