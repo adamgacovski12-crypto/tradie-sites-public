@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tradie Sites Co. — Professional Websites for Aussie Tradies</title>
     <meta name="description" content="Done-for-you tradie websites built in 24 hours. $200 setup, $80/month all-in. Mobile responsive, SEO ready, no lock-in contracts.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate icon" href="/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
@@ -347,7 +349,7 @@
 <!-- ── NAV ── -->
 <nav class="nav">
     <div class="container">
-        <a href="#" class="nav-logo">Tradie Sites Co.</a>
+        <a href="/" class="nav-logo">Tradie Sites Co.</a>
         <button class="hamburger" aria-label="Menu" id="hamburger">
             <span></span><span></span><span></span>
         </button>
@@ -641,17 +643,19 @@
             <button type="submit" class="form-submit">Send Enquiry</button>
             <div class="form-success" id="formSuccess">Thanks! We've received your enquiry and will be in touch within 24 hours.</div>
         </form>
-        <p class="contact-phone">Or call us: <strong>[PHONE_PLACEHOLDER]</strong></p>
     </div>
 </section>
 
 <!-- ── FOOTER ── -->
 <footer class="footer">
     <p>Tradie Sites Co. | <a href="https://site.tradiebud.tech">site.tradiebud.tech</a></p>
-    <p>&copy; 2025 Tradie Sites Co.</p>
+    <p>&copy; <span id="footerYear">2026</span> Tradie Sites Co.</p>
 </footer>
 
 <script>
+    /* ── Dynamic footer year ── */
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
     /* ── Mobile Nav ── */
     const hamburger = document.getElementById('hamburger');
     const navLinks = document.getElementById('navLinks');
@@ -739,11 +743,15 @@
             .map(m => m.content)
             .join(' ');
 
-        /* Simple extraction — server side can also parse */
-        const phoneMatch = allUserMessages.match(/(?:0[2-9]\d{8}|04\d{2}\s?\d{3}\s?\d{3}|\d{10})/);
+        /* Phone extraction — AU mobile + landline with flexible separators */
+        const phoneRegex = /(?:\+?61|0)(?:[\s.\-()]*\d){9}/;
+        const phoneCandidate = allUserMessages.match(phoneRegex);
+        const rawPhone = phoneCandidate ? phoneCandidate[0].trim() : '';
+        const digitCount = rawPhone.replace(/[^\d]/g, '').length;
+        const validPhone = (digitCount >= 9 && digitCount <= 12) ? rawPhone : '';
         const payload = {
             name: 'Chat Lead',
-            phone: phoneMatch ? phoneMatch[0] : '',
+            phone: validPhone,
             message: 'Auto-captured from chatbot. Full conversation: ' + conversationHistory.map(m => m.role + ': ' + m.content).join(' | '),
             source: 'chatbot'
         };

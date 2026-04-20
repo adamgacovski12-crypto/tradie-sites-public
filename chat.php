@@ -53,7 +53,7 @@ YOUR JOB:
 - Do NOT make up prices or services not listed above";
 
 $payload = [
-    'model' => 'llama-3.1-70b-versatile',
+    'model' => 'llama-3.3-70b-versatile',
     'messages' => array_merge(
         [['role' => 'system', 'content' => $system]],
         array_map(function($m) {
