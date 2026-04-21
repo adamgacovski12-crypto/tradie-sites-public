@@ -28,6 +28,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <a href="/#how-it-works">How</a>
             <a href="/#pricing">Pricing</a>
             <a href="/trades/">Trades</a>
+            <a href="/gallery">Gallery</a>
             <a href="/blog/">Blog</a>
             <a href="/#chat">Chat</a>
             <a href="/about">About</a>
@@ -196,7 +197,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <h4>Tradie Sites Co.</h4>
             <p style="color: rgba(255,255,255,.55); font-size: .9rem; max-width: 260px;">Done-for-you websites for Australian tradies. $200 setup + $80/month. Live in 24 hours.</p>
         </div>
-        <div><h4>Links</h4><a href="/">Home</a><a href="/trades/">Trades</a><a href="/blog/">Blog</a><a href="/#pricing">Pricing</a><a href="/signup/">Sign Up</a></div>
+        <div><h4>Links</h4><a href="/">Home</a><a href="/trades/">Trades</a><a href="/gallery">Gallery</a><a href="/blog/">Blog</a><a href="/#pricing">Pricing</a><a href="/signup/">Sign Up</a></div>
         <div><h4>Popular Trades</h4><a href="/trades/plumber">Plumbers</a><a href="/trades/electrician">Electricians</a><a href="/trades/builder">Builders</a><a href="/trades/painter">Painters</a><a href="/trades/roofer">Roofers</a></div>
         <div><h4>Legal</h4><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="mailto:info@tradiebud.tech">info@tradiebud.tech</a></div>
     </div>
