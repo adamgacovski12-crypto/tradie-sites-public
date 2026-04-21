@@ -1,0 +1,187 @@
+/* =====================================================================
+   /gallery page styles. Lives alongside site.css — shares the same
+   Barlow / orange / chunky-border vocabulary. Only adds what's specific
+   to the trade+style picker and the iframe preview.
+===================================================================== */
+
+.gallery-layout {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 960px) {
+    .gallery-layout {
+        grid-template-columns: 260px 1fr;
+        align-items: start;
+    }
+    .gallery-side {
+        position: sticky;
+        top: 84px;
+    }
+}
+
+.gallery-side {
+    display: grid;
+    gap: 24px;
+}
+
+.gallery-filter {
+    background: var(--white);
+    border: var(--border);
+    padding: 16px;
+    box-shadow: var(--shadow-hard-sm);
+}
+
+.filter-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    font-size: .95rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    color: var(--black);
+}
+
+.pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.pill {
+    appearance: none;
+    background: var(--white);
+    color: var(--black);
+    border: 2px solid var(--black);
+    padding: 6px 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: .9rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform .1s ease, background .15s ease, color .15s ease;
+}
+.pill:hover  { background: var(--cream); }
+.pill:active { transform: translate(1px, 1px); }
+.pill.is-selected {
+    background: var(--orange);
+    color: var(--black);
+    box-shadow: var(--shadow-hard-sm);
+}
+
+.filter-foot {
+    font-size: .85rem;
+    color: var(--gray-700);
+    line-height: 1.5;
+}
+
+.gallery-preview {
+    display: grid;
+    gap: 16px;
+}
+
+.preview-breadcrumb {
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1rem;
+    color: var(--gray-700);
+}
+.preview-breadcrumb strong { color: var(--black); }
+.preview-breadcrumb .sep   { margin: 0 6px; color: var(--gray-400); }
+
+.preview-frame-wrap {
+    position: relative;
+    background: var(--white);
+    border: var(--border);
+    box-shadow: var(--shadow-hard);
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+}
+
+@media (max-width: 720px) {
+    .preview-frame-wrap { aspect-ratio: 9 / 14; }
+}
+
+.preview-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: var(--white);
+    /* Invisible until we flip the class after load (see gallery.js). */
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+.preview-frame.is-loaded { opacity: 1; }
+
+.preview-skeleton {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg,
+            rgba(0,0,0,0.04) 0%,
+            rgba(0,0,0,0.10) 50%,
+            rgba(0,0,0,0.04) 100%);
+    background-size: 300% 100%;
+    animation: gallery-shimmer 1.2s linear infinite;
+    transition: opacity .25s ease;
+}
+.preview-skeleton.is-hidden { opacity: 0; pointer-events: none; }
+
+@keyframes gallery-shimmer {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+.preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 10px 16px;
+    font-size: .9rem;
+}
+
+.convert-list {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+.convert-list li {
+    color: rgba(255,255,255,.85);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    align-items: start;
+}
+.convert-list .bullet {
+    background: var(--orange);
+    color: var(--black);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--black);
+}
+
+.convert-note {
+    color: rgba(255,255,255,.55);
+    font-size: .8rem;
+    margin-top: 16px;
+    text-align: center;
+}
+
+.nav-links .is-active {
+    color: var(--orange);
+}
