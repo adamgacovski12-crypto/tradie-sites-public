@@ -64,26 +64,41 @@
 
     // iframe hides the skeleton once it finishes loading. Works on first
     // load too — iframe emits 'load' whenever src changes.
-    iframe.addEventListener('load', function () {
-        skeleton.classList.add('is-hidden');
-        iframe.classList.add('is-loaded');
-    });
-    // Flip it on first render in case the iframe was already in cache.
-    if (iframe.complete) {
+    function markLoaded() {
         skeleton.classList.add('is-hidden');
         iframe.classList.add('is-loaded');
     }
+    iframe.addEventListener('load', markLoaded);
+    // Safety net: if 'load' already fired before JS attached (cached mockup).
+    try {
+        if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+            markLoaded();
+        }
+    } catch (_) { /* cross-origin would throw — ignore */ }
+    // Last-ditch: reveal after 4s even if something is wrong so the user
+    // isn't stuck watching a shimmer.
+    setTimeout(markLoaded, 4000);
 
-    // Pill click handlers.
-    document.querySelectorAll('.pill[data-trade]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            applyState({ trade: btn.getAttribute('data-trade'), style: state.style });
+    // Pill click + keyboard arrow nav (radiogroup semantics).
+    function wirePillGroup(selector, updater) {
+        var pills = Array.prototype.slice.call(document.querySelectorAll(selector));
+        pills.forEach(function (btn, i) {
+            btn.addEventListener('click', function () { updater(btn); });
+            btn.addEventListener('keydown', function (e) {
+                if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+                e.preventDefault();
+                var dir = e.key === 'ArrowRight' ? 1 : -1;
+                var next = pills[(i + dir + pills.length) % pills.length];
+                next.focus();
+                updater(next);
+            });
         });
+    }
+    wirePillGroup('.pill[data-trade]', function (btn) {
+        applyState({ trade: btn.getAttribute('data-trade'), style: state.style });
     });
-    document.querySelectorAll('.pill[data-style]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            applyState({ trade: state.trade, style: btn.getAttribute('data-style') });
-        });
+    wirePillGroup('.pill[data-style]', function (btn) {
+        applyState({ trade: state.trade, style: btn.getAttribute('data-style') });
     });
 
     // Back/forward buttons should re-run applyState from the new URL.
