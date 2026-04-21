@@ -77,6 +77,19 @@ return [
     'from_email'  => 'info@tradiebud.tech',
     'from_name'   => 'Tradie Sites Co.',
 
+    /* ── GST handling ──
+     * Flip 'gst_enabled' to true once the business is GST-registered (annual
+     * turnover ≥ $75,000). When true, all customer-facing receipts and invoices
+     * gain a GST line and the Terms-page summary updates to reflect tax-inclusive
+     * pricing. Until then, prices are shown GST-free per s. 9-5 GST Act.
+     *
+     * IMPORTANT: when you flip this on, also (a) re-quote any in-flight signups,
+     * (b) update the .htaccess pricing copy that says "we don't charge GST yet",
+     * and (c) talk to your accountant about the effective date. */
+    'gst_enabled' => false,
+    'gst_rate'    => 0.10,         /* 10% — Australia */
+    'abn'         => '41 670 505 816',
+
     /* ── Licensed trades: licence number is required for these ── */
     'licence_required_slugs' => ['plumber', 'electrician', 'gas-fitter', 'builder'],
 

@@ -383,11 +383,15 @@ function tsc_email_customer_receipt(array $rec): void {
     $body .= "Thanks for signing up. Here's what you chose:\n\n";
     $body .= "Plan: {$plan['label']} — {$plan['sub']}\n";
     $body .= "Reference: {$rec['reference']}\n\n";
-    $body .= "To get your site built, transfer \$200 to:\n\n";
+    $setupAmount = (float)$plan['setup'];
+    $body .= "To get your site built, transfer " . tsc_format_amount_with_gst($setupAmount, 'setup fee') . " to:\n\n";
     $body .= "Account: {$bank['account_name']}\n";
     $body .= "BSB: {$bank['bsb']}\n";
     $body .= "Account number: {$bank['account_number']}\n";
     $body .= "Reference: {$rec['reference']}  <- include this in the transfer description\n\n";
+    if (!empty($cfg['gst_enabled'])) {
+        $body .= "(Amount above is GST-inclusive. ABN: {$cfg['abn']}.)\n\n";
+    }
     $body .= "Your site will be live within 24 hours of the payment landing.\n\n";
     if ($isHosted) {
         $body .= "Hosting ($80/month) kicks in a month from go-live. If hosting payments stop, the site comes offline — that's how hosting works, no surprises.\n\n";
@@ -450,6 +454,20 @@ function tsc_email_payment_confirmed(array $rec): void {
     tsc_mail($rec['email'], $subject, $body);
 }
 
+function tsc_email_uptime_alert(string $reference, string $businessName, string $liveUrl, string $reason): void {
+    $cfg = tsc_cfg();
+    $subject = "\xE2\x9A\xA0 SITE DOWN: {$businessName} ({$reference})";
+    $body  = "Uptime check failed for a hosted client.\n\n";
+    $body .= "Reference:  {$reference}\n";
+    $body .= "Business:   {$businessName}\n";
+    $body .= "URL:        {$liveUrl}\n";
+    $body .= "Failure:    {$reason}\n";
+    $body .= "Detected:   " . date('Y-m-d H:i:s') . "\n\n";
+    $body .= "We promised this client uptime monitoring. Investigate ASAP.\n";
+    $body .= "Cloudflare dashboard: https://dash.cloudflare.com/\n";
+    tsc_mail($cfg['admin_email'], $subject, $body);
+}
+
 function tsc_email_refunded(array $rec, string $reason): void {
     $cfg = tsc_cfg();
     $bank = $cfg['bank'];
@@ -482,18 +500,39 @@ function tsc_email_recurring_invoice(array $rec): void {
     $dueDate = date('j F Y', strtotime('+0 day'));
     $invoiceRef = $rec['reference'] . '-' . date('Ymd');
     $month = strtoupper(date('F Y'));
+    $amount = (float)$plan['recurring_amount'];
     $subject = "Your Tradie Sites Co. hosting invoice — {$month}";
     $body  = "G'day {$rec['contact_name']},\n\n";
-    $body .= "Your hosting fee ({$plan['recurring_label']}) is due on {$dueDate}.\n\n";
+    $body .= "Your hosting fee for the coming month: " . tsc_format_amount_with_gst($amount, 'monthly hosting') . "\n";
+    $body .= "Due: {$dueDate}\n\n";
     $body .= "Transfer to:\n";
     $body .= "Account: {$bank['account_name']}\n";
     $body .= "BSB: {$bank['bsb']}\n";
     $body .= "Account number: {$bank['account_number']}\n";
     $body .= "Reference: {$invoiceRef}\n\n";
+    if (!empty($cfg['gst_enabled'])) {
+        $body .= "(Amount above is GST-inclusive. ABN: {$cfg['abn']}.)\n\n";
+    }
     $body .= "This covers hosting, uptime monitoring and breakage fixes for the next month. If you've got content changes or new pages to add, reply and we'll quote those separately.\n\n";
     $body .= "Miss this one and the site goes offline until it's cleared — disclosed at signup.\n\n";
     $body .= "Cheers,\nTradie Sites Co.\n";
     tsc_mail($rec['email'], $subject, $body);
+}
+
+/**
+ * Format an amount with optional GST line.
+ * GST disabled: "$200.00 (GST-free under the small-business threshold)"
+ * GST enabled:  "$220.00 inc. $20.00 GST"
+ */
+function tsc_format_amount_with_gst(float $amount, string $label = ''): string {
+    $cfg = tsc_cfg();
+    if (empty($cfg['gst_enabled'])) {
+        return '$' . number_format($amount, 2) . ($label !== '' ? " ({$label}, GST-free)" : ' (GST-free)');
+    }
+    $rate = (float)($cfg['gst_rate'] ?? 0.10);
+    $gst  = $amount * $rate;
+    $total = $amount + $gst;
+    return '$' . number_format($total, 2) . ' inc. $' . number_format($gst, 2) . ' GST';
 }
 
 /* ── Record updates for cron + admin actions ── */

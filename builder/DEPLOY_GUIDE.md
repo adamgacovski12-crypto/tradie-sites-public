@@ -121,19 +121,38 @@ If not:
 
 For Hosted plan clients, recurring invoices fire automatically from the daily cron at `admin-leads/cron.php`. An invoice lands in the client's inbox ~23 days after the deploy date (roughly 7 days before the 30-day billing anniversary), and then every ~30 days after the last invoice.
 
-**Server crontab entry** (one-off to add per server, 7:05am Sydney time daily):
+**Server crontab entries** — one-off, three lines (adjust the path if your VentraIP webroot differs):
 
 ```bash
 crontab -e
-# Add this line:
+# Add these three lines:
+
+# Daily housekeeping — recurring invoices, rate-limit cleanup, stale ZIPs (7:05am Sydney)
 5 7 * * * /usr/bin/php /var/www/site.tradiebud.tech/admin-leads/cron.php >> /var/www/site.tradiebud.tech/signups/cron.log 2>&1
+
+# Daily backup of signups data — tarball with 30-day rotation (3:30am Sydney)
+30 3 * * * /usr/bin/php /var/www/site.tradiebud.tech/admin-leads/backup.php >> /var/www/site.tradiebud.tech/signups/backup.log 2>&1
+
+# Uptime check on every Hosted client site — alerts Adam after 2 consecutive failures (every 10 min)
+*/10 * * * * /usr/bin/php /var/www/site.tradiebud.tech/admin-leads/uptime.php >> /var/www/site.tradiebud.tech/signups/uptime.log 2>&1
 ```
 
-The cron also cleans expired rate-limit files and stale download ZIPs. Safe to run daily. Pass `--dry-run` to see what would happen without sending/deleting:
+All three scripts are CLI-only (refuse web access) and accept `--dry-run`:
 
 ```bash
-php admin-leads/cron.php --dry-run
+php admin-leads/cron.php   --dry-run
+php admin-leads/backup.php --dry-run
+php admin-leads/uptime.php --dry-run
 ```
+
+**Backup retention**: keeps 30 days of `.tar.gz` snapshots in `signups/backups/`. To survive a full server loss, also rsync that folder to S3, another VPS, or your laptop nightly:
+
+```bash
+# Example: rsync to S3 via AWS CLI
+30 4 * * * aws s3 sync /var/www/site.tradiebud.tech/signups/backups/ s3://tsc-backups/signups/
+```
+
+**Health check**: `https://site.tradiebud.tech/admin-leads/health.php` returns a JSON snapshot of system state — disk free, env vars present, cron freshness, backup age, recent mail failures. Returns HTTP 503 if anything's wrong. Point UptimeRobot or BetterStack at it for free external monitoring.
 
 If you ever need to manually re-send an invoice to a specific client outside the cron cadence, use the `send_invoice` action from `/admin-leads/` — that also updates `last_invoice_sent` so the next cron run won't double-bill.
 
