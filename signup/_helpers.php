@@ -71,6 +71,18 @@ function tsc_csrf_ok(?string $token): bool {
     return $token && !empty($_SESSION['tsc_csrf']) && hash_equals($_SESSION['tsc_csrf'], $token);
 }
 
+/* Admin CSRF — separate session key so signup tokens and admin tokens don't collide. */
+function tsc_admin_csrf_token(): string {
+    if (session_status() !== PHP_SESSION_ACTIVE) @session_start();
+    if (empty($_SESSION['tsc_admin_csrf'])) $_SESSION['tsc_admin_csrf'] = bin2hex(random_bytes(16));
+    return $_SESSION['tsc_admin_csrf'];
+}
+
+function tsc_admin_csrf_ok(?string $token): bool {
+    if (session_status() !== PHP_SESSION_ACTIVE) @session_start();
+    return $token && !empty($_SESSION['tsc_admin_csrf']) && hash_equals($_SESSION['tsc_admin_csrf'], $token);
+}
+
 function tsc_rate_limit_check(string $ip): bool {
     $cfg = tsc_cfg();
     tsc_ensure_dirs();
@@ -435,6 +447,19 @@ function tsc_email_payment_confirmed(array $rec): void {
         $body .= "Want changes or a rebuild later? Reply any time — we quote separately.\n\n";
     }
     $body .= "Any questions, reply.\n\nCheers,\nTradie Sites Co.\n";
+    tsc_mail($rec['email'], $subject, $body);
+}
+
+function tsc_email_refunded(array $rec, string $reason): void {
+    $cfg = tsc_cfg();
+    $bank = $cfg['bank'];
+    $subject = 'Refund processed — Tradie Sites Co. (' . $rec['reference'] . ')';
+    $body  = "G'day {$rec['contact_name']},\n\n";
+    $body .= "We've processed your refund of \$200 for setup fee on signup {$rec['reference']}.\n\n";
+    $body .= "Reason recorded: {$reason}\n\n";
+    $body .= "The funds should land back in the account you transferred from within 1-3 business days. If you don't see it within a week, reply to this email and we'll chase the bank.\n\n";
+    $body .= "We're sorry it didn't work out. If you ever want to give it another go, you're welcome back — no hard feelings.\n\n";
+    $body .= "Cheers,\nTradie Sites Co.\n";
     tsc_mail($rec['email'], $subject, $body);
 }
 

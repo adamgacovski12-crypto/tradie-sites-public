@@ -5,6 +5,7 @@
  */
 require __DIR__ . '/../signup/_helpers.php';
 $cfg = tsc_cfg();
+$csrf = tsc_admin_csrf_token();
 
 $flash = $_GET['flash'] ?? '';
 $search = strtolower(trim((string)($_GET['q'] ?? '')));
@@ -69,6 +70,7 @@ header('Content-Type: text/html; charset=UTF-8');
         .badge.paid             { color: #69d67a; border-color: #69d67a; }
         .badge.prepped          { color: #8be9fd; border-color: #8be9fd; }
         .badge.deployed         { color: #bd93f9; border-color: #bd93f9; }
+        .badge.refunded         { color: #ff7b7b; border-color: #ff7b7b; }
         .badge.cancelled        { color: #888; border-color: #888; }
         .actions form { display: inline; margin: 0; }
         .actions button {
@@ -125,30 +127,42 @@ header('Content-Type: text/html; charset=UTF-8');
             <td class="actions">
 <?php if ($status === 'awaiting_payment'): ?>
                 <form method="POST" action="/admin-leads/action.php" onsubmit="return confirm('Mark <?= $ref ?> as PAID and email the customer?');">
+                    <input type="hidden" name="csrf" value="<?= tsc_h($csrf) ?>">
                     <input type="hidden" name="reference" value="<?= $ref ?>">
                     <input type="hidden" name="action" value="mark_paid">
                     <button type="submit">Mark paid</button>
                 </form>
                 <form method="POST" action="/admin-leads/action.php" onsubmit="return confirm('Cancel <?= $ref ?>?');">
+                    <input type="hidden" name="csrf" value="<?= tsc_h($csrf) ?>">
                     <input type="hidden" name="reference" value="<?= $ref ?>">
                     <input type="hidden" name="action" value="cancel">
                     <button type="submit" class="cancel">Cancel</button>
                 </form>
 <?php elseif ($status === 'paid'): ?>
                 <form method="POST" action="/admin-leads/action.php" onsubmit="return confirm('Prep build folder + CLAUDE_BUILD_PROMPT.md for <?= $ref ?>?');">
+                    <input type="hidden" name="csrf" value="<?= tsc_h($csrf) ?>">
                     <input type="hidden" name="reference" value="<?= $ref ?>">
                     <input type="hidden" name="action" value="prep_build">
                     <button type="submit">Prep build</button>
                 </form>
+                <form method="POST" action="/admin-leads/action.php" onsubmit="var r=prompt('Refund $200 — reason for the records:'); if(!r||!r.trim())return false; this.reason.value=r; return confirm('Refund <?= $ref ?> $200 and email the customer?');" style="display:inline;margin-left:6px;">
+                    <input type="hidden" name="csrf" value="<?= tsc_h($csrf) ?>">
+                    <input type="hidden" name="reference" value="<?= $ref ?>">
+                    <input type="hidden" name="action" value="refund">
+                    <input type="hidden" name="reason" value="">
+                    <button type="submit" class="cancel">Refund</button>
+                </form>
 <?php elseif ($status === 'prepped' || $status === 'deployed'): ?>
                 <a href="/admin-leads/action.php?action=view_build&reference=<?= $ref ?>" target="_blank">View build</a>
                 <form method="POST" action="/admin-leads/action.php" style="display:inline;margin-left:6px;">
+                    <input type="hidden" name="csrf" value="<?= tsc_h($csrf) ?>">
                     <input type="hidden" name="reference" value="<?= $ref ?>">
                     <input type="hidden" name="action" value="download_zip">
                     <button type="submit">Download ZIP</button>
                 </form>
 <?php if ($status === 'prepped'): ?>
                 <form method="POST" action="/admin-leads/action.php" onsubmit="var u=prompt('Live URL (include https://):', 'https://'); if(!u)return false; this.live_url.value=u; return true;" style="display:inline;margin-left:6px;">
+                    <input type="hidden" name="csrf" value="<?= tsc_h($csrf) ?>">
                     <input type="hidden" name="reference" value="<?= $ref ?>">
                     <input type="hidden" name="action" value="mark_deployed">
                     <input type="hidden" name="live_url" value="">
@@ -178,6 +192,13 @@ header('Content-Type: text/html; charset=UTF-8');
 <?php if (!empty($r['live_url'])): ?>
                     <dt>Live URL</dt><dd><a href="<?= tsc_h($r['live_url']) ?>" target="_blank" rel="noopener"><?= tsc_h($r['live_url']) ?></a></dd>
                     <dt>Deployed</dt><dd><?= tsc_h($r['deployed_date'] ?? '') ?: '—' ?></dd>
+<?php endif; ?>
+<?php if ($status === 'refunded'):
+    $detailJsonPath = $cfg['paths']['records_dir'] . '/' . $ref . '.json';
+    $detailRec = file_exists($detailJsonPath) ? (json_decode((string)@file_get_contents($detailJsonPath), true) ?: []) : [];
+?>
+                    <dt>Refund reason</dt><dd><?= tsc_h($detailRec['refund_reason'] ?? '—') ?></dd>
+                    <dt>Refund date</dt><dd><?= tsc_h($detailRec['refund_date'] ?? '—') ?></dd>
 <?php endif; ?>
                     <dt>JSON record</dt><dd>/signups/records/<?= $ref ?>.json <span style="color:#666">(blocked from web)</span></dd>
                     <dt>Build folder</dt><dd>/builds/<?= $ref ?>/ <span style="color:#666">(after prep; gitignored)</span></dd>

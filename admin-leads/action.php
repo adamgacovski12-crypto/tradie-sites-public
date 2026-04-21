@@ -154,9 +154,13 @@ if ($action === 'list_uploads') {
     exit;
 }
 
-/* ── Mutating actions require POST ── */
+/* ── Mutating actions require POST + valid admin CSRF token ── */
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     header('Location: /admin-leads/');
+    exit;
+}
+if (!tsc_admin_csrf_ok($_POST['csrf'] ?? null)) {
+    header('Location: /admin-leads/?flash=' . urlencode('Session expired or CSRF check failed — reload /admin-leads/ and try again.'));
     exit;
 }
 
@@ -179,6 +183,33 @@ if ($action === 'cancel') {
     tsc_update_status($reference, 'cancelled');
     tsc_admin_log('cancel', $reference);
     header('Location: /admin-leads/?flash=' . urlencode($reference . ' cancelled'));
+    exit;
+}
+
+if ($action === 'refund') {
+    $reason = trim((string)($_POST['reason'] ?? ''));
+    if ($reason === '') {
+        header('Location: /admin-leads/?flash=' . urlencode('Refund needs a reason — try again from the row.'));
+        exit;
+    }
+    $rec = tsc_load_record($reference);
+    if (!$rec) {
+        header('Location: /admin-leads/?flash=Reference+not+found');
+        exit;
+    }
+    /* Persist refund metadata in the JSON record (CSV stays as status string). */
+    $rec['refund_reason'] = substr($reason, 0, 500);
+    $rec['refund_date']   = date('Y-m-d H:i:s');
+    $jsonPath = $cfg['paths']['records_dir'] . '/' . $reference . '.json';
+    @file_put_contents($jsonPath, json_encode($rec, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    tsc_update_status($reference, 'refunded');
+
+    /* Email the customer */
+    if (function_exists('tsc_email_refunded')) {
+        try { tsc_email_refunded($rec, $reason); } catch (Throwable $e) {}
+    }
+    tsc_admin_log('refund', $reference, 'reason=' . substr($reason, 0, 80));
+    header('Location: /admin-leads/?flash=' . urlencode($reference . ' refunded — customer emailed'));
     exit;
 }
 

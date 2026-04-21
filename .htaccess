@@ -69,6 +69,8 @@ SetEnv ADMIN_EMAIL info@tradiebud.tech
     # Legal pretty URLs
     RewriteRule ^privacy/?$ /privacy.php [L]
     RewriteRule ^terms/?$   /terms.php   [L]
+    RewriteRule ^about/?$   /about.php   [L]
+    RewriteRule ^faq/?$     /faq.php     [L]
 </IfModule>
 
 # Custom 404 — served by /404.php (renders with Bold Tradie Energy chrome and an HTTP 404 status)

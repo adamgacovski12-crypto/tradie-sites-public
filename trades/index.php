@@ -70,6 +70,8 @@ header('Content-Type: text/html; charset=UTF-8');
             <a href="/trades/">Trades</a>
             <a href="/blog/">Blog</a>
             <a href="/#chat">Chat</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
             <a href="/signup/" class="nav-cta">Sign Up</a>
         </div>
     </div>
