@@ -71,6 +71,11 @@ SetEnv ADMIN_EMAIL info@tradiebud.tech
     RewriteRule ^terms/?$   /terms.php   [L]
     RewriteRule ^about/?$   /about.php   [L]
     RewriteRule ^faq/?$     /faq.php     [L]
+
+    # Pretty URL for gallery page (file is gallery.php, folder is /gallery/)
+    # Without this rule Apache tries to serve the /gallery/ directory,
+    # Options -Indexes refuses a listing, and visitors see a 403.
+    RewriteRule ^gallery/?$ /gallery.php [L]
 </IfModule>
 
 # Custom 404 — served by /404.php (renders with Bold Tradie Energy chrome and an HTTP 404 status)
